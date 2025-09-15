@@ -18,7 +18,7 @@ function SplashImage({ show, fadeOut }: { show: boolean; fadeOut: boolean }) {
       }`}
     >
       <Image
-        src="/simasdata-1.jpg"
+        src="./simasdata-1.jpg"
         alt="Gallery Landing"
         fill
         className="object-cover"
@@ -49,8 +49,8 @@ function SplashVideo({ show, fadeOut, videoRef }: {
         loop
         playsInline
       >
-        <source src="/simasdata-2.mov" type="video/quicktime" />
-        <source src="/simasdata-2.mov" type="video/mp4" />
+        <source src="./simasdata-2.mov" type="video/quicktime" />
+        <source src="./simasdata-2.mov" type="video/mp4" />
       </video>
     </div>
   );

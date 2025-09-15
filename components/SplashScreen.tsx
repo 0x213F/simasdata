@@ -40,7 +40,7 @@ export default function SplashScreen() {
       <div className="relative w-full h-full">
         {!showVideo && (
           <Image
-            src="/simasdata-1.jpg"
+            src="./simasdata-1.jpg"
             alt="Gallery Landing"
             fill
             className="object-cover"
@@ -55,8 +55,8 @@ export default function SplashScreen() {
             muted
             loop
           >
-            <source src="/simasdata-2.mov" type="video/quicktime" />
-            <source src="/simasdata-2.mov" type="video/mp4" />
+            <source src="./simasdata-2.mov" type="video/quicktime" />
+            <source src="./simasdata-2.mov" type="video/mp4" />
           </video>
         )}
       </div>

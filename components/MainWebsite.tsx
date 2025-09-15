@@ -21,7 +21,7 @@ function SplashImage({ show }: { show: boolean }) {
   return (
     <div className="absolute inset-0 z-20">
       <Image
-        src="/simasdata-1.jpg"
+        src="./simasdata-1.jpg"
         alt="Gallery Landing"
         fill
         className="object-cover"
@@ -52,8 +52,8 @@ function SplashVideo({ show, fadeOut, videoRef }: {
         loop
         playsInline
       >
-        <source src="/simasdata-2.mov" type="video/quicktime" />
-        <source src="/simasdata-2.mov" type="video/mp4" />
+        <source src="./simasdata-2.mov" type="video/quicktime" />
+        <source src="./simasdata-2.mov" type="video/mp4" />
       </video>
     </div>
   );
