@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, Plus, X } from 'lucide-react';
-import { useBlogPostStore, BlogPost, useAuthStore } from '../../lib/store';
-import { uploadBlogImage } from '../../lib/supabase';
+import { useBlogPostStore, useAuthStore } from '../../lib/store';
+import { uploadBlogImage, BlogPost } from '../../lib/supabase';
 
 // Book Pages Component
 function BookPages({ post }: { post: BlogPost }) {

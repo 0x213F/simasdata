@@ -34,7 +34,7 @@ function SplashImage({ show }: { show: boolean }) {
 function SplashVideo({ show, fadeOut, videoRef }: {
   show: boolean;
   fadeOut: boolean;
-  videoRef: React.RefObject<HTMLVideoElement>;
+  videoRef: React.RefObject<HTMLVideoElement | null>;
 }) {
   if (!show) return null;
 
