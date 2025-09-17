@@ -256,9 +256,9 @@ export default function ProjectsView() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
                 {projects.map((project, index) => (
                   <div key={`project-${project.id}-${index}`} className="card rounded-lg overflow-hidden">
-                    {project.image_url ? (
+                    {project.imgurl ? (
                       <div className="h-80 bg-cover bg-center bg-no-repeat"
-                           style={{ backgroundImage: `url(${project.image_url})` }}>
+                           style={{ backgroundImage: `url(${project.imgurl})` }}>
                       </div>
                     ) : (
                       <div className={`h-80 bg-gradient-to-br ${getGradientColors(index)}`}></div>

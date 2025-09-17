@@ -150,7 +150,7 @@ export const useArtistStore = create<ArtistStore>((set, get) => ({
         is_active: true
       }
       if (imageUrl) {
-        insertData.image_url = imageUrl
+        insertData.imgurl = imageUrl
       }
 
       const { data, error } = await supabase
@@ -276,7 +276,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
         is_active: true
       }
       if (imageUrl) {
-        insertData.image_url = imageUrl
+        insertData.imgurl = imageUrl
       }
 
       const { data, error } = await supabase

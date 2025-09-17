@@ -256,9 +256,9 @@ export default function ArtistsView() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
                 {artists.map((artist, index) => (
                   <div key={`artist-${artist.id}-${index}`} className="card rounded-lg overflow-hidden">
-                    {artist.image_url ? (
+                    {artist.imgurl ? (
                       <div className="h-80 bg-cover bg-center bg-no-repeat"
-                           style={{ backgroundImage: `url(${artist.image_url})` }}>
+                           style={{ backgroundImage: `url(${artist.imgurl})` }}>
                       </div>
                     ) : (
                       <div className={`h-80 bg-gradient-to-br ${getGradientColors(index)}`}></div>
