@@ -229,18 +229,6 @@ export default function ProjectsView() {
   return (
     <>
       <div className="min-h-screen">
-        {/* Hero Section */}
-        <div className="pt-16 pb-12 px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-light text-slate-900 mb-4 tracking-wide">
-              Projects
-            </h1>
-            <p className="text-lg text-slate-600 font-light leading-relaxed max-w-2xl mx-auto">
-              Curated explorations in form, concept, and collaboration—each project
-              a deliberate journey through artistic inquiry and creative synthesis.
-            </p>
-          </div>
-        </div>
 
         {/* Projects Grid */}
         <div className="px-8 pb-20">
