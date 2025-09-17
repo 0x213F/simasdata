@@ -25,6 +25,7 @@ interface ArtistStore {
   error: string | null
   fetchArtists: () => Promise<void>
   refetchArtists: () => Promise<void>
+  createArtist: (name: string, description: string) => Promise<boolean>
 }
 
 interface ProjectStore {
@@ -33,6 +34,7 @@ interface ProjectStore {
   error: string | null
   fetchProjects: () => Promise<void>
   refetchProjects: () => Promise<void>
+  createProject: (name: string, description: string) => Promise<boolean>
 }
 
 interface BlogPostStore {
@@ -125,11 +127,56 @@ export const useArtistStore = create<ArtistStore>((set, get) => ({
         })
       }
     } catch (err: any) {
-      set({ 
-        loading: false, 
+      set({
+        loading: false,
         error: err.message || 'Failed to fetch artists',
         artists: []
       })
+    }
+  },
+
+  createArtist: async (name: string, description: string) => {
+    const state = get()
+    if (state.loading) {
+      return false
+    }
+
+    set({ loading: true, error: null })
+
+    try {
+      const { data, error } = await supabase
+        .from('Artist')
+        .insert({
+          name: name.trim(),
+          description: description.trim(),
+          medium: '', // Default empty medium
+          is_active: true
+        })
+        .select()
+        .single()
+
+      if (error) {
+        set({
+          loading: false,
+          error: error.message
+        })
+        return false
+      } else {
+        // Add the new artist to the beginning of the list
+        const updatedArtists = [data, ...state.artists]
+        set({
+          loading: false,
+          error: null,
+          artists: updatedArtists
+        })
+        return true
+      }
+    } catch (err: any) {
+      set({
+        loading: false,
+        error: err.message || 'Failed to create artist'
+      })
+      return false
     }
   }
 }))
@@ -207,6 +254,51 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
         error: err.message || 'Failed to fetch projects',
         projects: []
       })
+    }
+  },
+
+  createProject: async (name: string, description: string) => {
+    const state = get()
+    if (state.loading) {
+      return false
+    }
+
+    set({ loading: true, error: null })
+
+    try {
+      const { data, error } = await supabase
+        .from('Project')
+        .insert({
+          name: name.trim(),
+          description: description.trim(),
+          medium: '', // Default empty medium
+          is_active: true
+        })
+        .select()
+        .single()
+
+      if (error) {
+        set({
+          loading: false,
+          error: error.message
+        })
+        return false
+      } else {
+        // Add the new project to the beginning of the list
+        const updatedProjects = [data, ...state.projects]
+        set({
+          loading: false,
+          error: null,
+          projects: updatedProjects
+        })
+        return true
+      }
+    } catch (err: any) {
+      set({
+        loading: false,
+        error: err.message || 'Failed to create project'
+      })
+      return false
     }
   }
 }))

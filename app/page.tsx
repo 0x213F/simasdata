@@ -79,17 +79,17 @@ export default function Home() {
         if (videoRef.current) {
           videoRef.current.play();
         }
-      }, 1000);
+      }, 600);
 
       // Step 3: Start fade at end of video (after 3 seconds total)
       const timer2 = setTimeout(() => {
         setVideoFadeOut(true);
-      }, 3000);
+      }, 2000);
 
       // Step 4: Display website (after fade completes)
       const timer3 = setTimeout(() => {
         handleSplashComplete();
-      }, 3500);
+      }, 2500);
 
       return () => {
         clearTimeout(timer1);
@@ -140,7 +140,7 @@ export default function Home() {
     return (
       <div className="fixed inset-0 w-full h-full bg-white">
         <SplashImage show={!showVideo} />
-        <SplashVideo show={showVideo} fadeOut={videoFadeOut} videoRef={videoRef} />
+        <SplashVideo show={true} fadeOut={videoFadeOut} videoRef={videoRef} />
       </div>
     );
   }
