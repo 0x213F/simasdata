@@ -6,8 +6,9 @@ const nextConfig: NextConfig = {
   output: 'export',
   trailingSlash: true,
   distDir: 'out',
-  basePath: isProd ? '/simasdata' : '',
-  assetPrefix: isProd ? '/simasdata' : '',
+  // No basePath needed for custom domain (simasdata.org)
+  // basePath: isProd ? '/simasdata' : '',
+  // assetPrefix: isProd ? '/simasdata' : '',
   images: {
     unoptimized: true
   }

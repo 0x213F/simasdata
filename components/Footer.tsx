@@ -27,7 +27,7 @@ export default function Footer() {
   }
 
   return (
-    <footer 
+    <footer
       className="fixed bottom-0 left-0 w-full bg-white z-30"
       style={{
         height: '80px',
@@ -38,6 +38,15 @@ export default function Footer() {
         borderTop: '1px solid rgba(0, 0, 0, 0.08)'
       }}
     >
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @media (max-width: 767px) {
+            footer {
+              padding: 0 20px !important;
+            }
+          }
+        `
+      }} />
       {/* Left: Gallery Name */}
       <div 
         className={`text-xs tracking-[0.2em] font-light uppercase transition-colors ${

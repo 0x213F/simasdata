@@ -417,7 +417,7 @@ function NavigationButtons({
   return (
     <>
       {/* Mobile Navigation - Stacked Layout */}
-      <div className="flex flex-col md:hidden gap-4 items-center mt-6">
+      <div className="flex flex-col md:hidden gap-4 items-center">
         {/* Timestamp */}
         <div className="text-slate-500 text-sm font-mono tracking-wider">
           {formattedDate}
