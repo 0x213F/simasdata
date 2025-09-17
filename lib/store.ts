@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { supabase, Artist, BlogPost } from './supabase'
+import { supabase, Artist, Project, BlogPost } from './supabase'
 import { User } from '@supabase/supabase-js'
 
 // Utility function to preload images
@@ -25,6 +25,14 @@ interface ArtistStore {
   error: string | null
   fetchArtists: () => Promise<void>
   refetchArtists: () => Promise<void>
+}
+
+interface ProjectStore {
+  projects: Project[]
+  loading: boolean
+  error: string | null
+  fetchProjects: () => Promise<void>
+  refetchProjects: () => Promise<void>
 }
 
 interface BlogPostStore {
@@ -121,6 +129,83 @@ export const useArtistStore = create<ArtistStore>((set, get) => ({
         loading: false, 
         error: err.message || 'Failed to fetch artists',
         artists: []
+      })
+    }
+  }
+}))
+
+export const useProjectStore = create<ProjectStore>((set, get) => ({
+  projects: [],
+  loading: false,
+  error: null,
+
+  fetchProjects: async () => {
+    // Don't fetch if already loading or if we already have data
+    const state = get()
+    if (state.loading || (state.projects.length > 0 && !state.error)) {
+      return
+    }
+
+    set({ loading: true, error: null })
+
+    try {
+      const { data, error } = await supabase
+        .from('Project')
+        .select('*')
+        .eq('is_active', true)
+        .order('name', { ascending: true })
+
+      if (error) {
+        set({
+          loading: false,
+          error: error.message,
+          projects: []
+        })
+      } else {
+        set({
+          loading: false,
+          error: null,
+          projects: data || []
+        })
+      }
+    } catch (err: any) {
+      set({
+        loading: false,
+        error: err.message || 'Failed to fetch projects',
+        projects: []
+      })
+    }
+  },
+
+  refetchProjects: async () => {
+    // Force refetch by clearing current data first
+    set({ projects: [], loading: true, error: null })
+
+    try {
+      const { data, error } = await supabase
+        .from('Project')
+        .select('*')
+        .eq('is_active', true)
+        .order('name', { ascending: true })
+
+      if (error) {
+        set({
+          loading: false,
+          error: error.message,
+          projects: []
+        })
+      } else {
+        set({
+          loading: false,
+          error: null,
+          projects: data || []
+        })
+      }
+    } catch (err: any) {
+      set({
+        loading: false,
+        error: err.message || 'Failed to fetch projects',
+        projects: []
       })
     }
   }

@@ -5,6 +5,28 @@ import { ArrowLeft, ArrowRight, Plus, X } from 'lucide-react';
 import { useBlogPostStore, useAuthStore } from '../../lib/store';
 import { uploadBlogImage, BlogPost } from '../../lib/supabase';
 
+// Helper function to format timestamp for vertical display
+function formatTimestamp(dateString: string): string {
+  const date = new Date(dateString);
+  const month = date.toLocaleDateString(undefined, { month: 'short' }).toUpperCase();
+  const day = date.getDate().toString().padStart(2, '0');
+  const year = date.getFullYear();
+  return `${month} ${day} ${year}`;
+}
+
+// Vertical Timestamp Component
+function VerticalTimestamp({ timestamp }: { timestamp: string }) {
+  const formattedDate = formatTimestamp(timestamp);
+
+  return (
+    <div className="hidden md:flex absolute -left-6 bottom-16 transform -rotate-90 origin-left">
+      <div className="text-slate-500 text-sm font-mono tracking-wider whitespace-nowrap">
+        {formattedDate}
+      </div>
+    </div>
+  );
+}
+
 // Book Pages Component
 function BookPages({ post }: { post: BlogPost }) {
   // Helper function to render pane content
@@ -35,14 +57,14 @@ function BookPages({ post }: { post: BlogPost }) {
   return (
     <>
       {/* Mobile: Stacked Layout */}
-      <div className="flex flex-col md:hidden gap-8 items-center">
+      <div className="flex flex-col md:hidden gap-4 items-center">
         {/* Page 1 */}
-        <div className={`bg-white rounded-lg shadow-lg aspect-square w-80 flex items-center justify-center border border-slate-200 ${post.pane_1_imgurl ? 'p-0 overflow-hidden' : 'p-8'}`}>
+        <div className={`bg-white rounded-lg shadow-lg aspect-square w-64 flex items-center justify-center border border-slate-200 ${post.pane_1_imgurl ? 'p-0 overflow-hidden' : 'p-6'}`}>
           {renderPaneContent(post.pane_1_text, post.pane_1_imgurl)}
         </div>
-        
+
         {/* Page 2 */}
-        <div className={`bg-white rounded-lg shadow-lg aspect-square w-80 flex items-center justify-center border border-slate-200 ${post.pane_2_imgurl ? 'p-0 overflow-hidden' : 'p-8'}`}>
+        <div className={`bg-white rounded-lg shadow-lg aspect-square w-64 flex items-center justify-center border border-slate-200 ${post.pane_2_imgurl ? 'p-0 overflow-hidden' : 'p-6'}`}>
           {renderPaneContent(post.pane_2_text, post.pane_2_imgurl)}
         </div>
       </div>
@@ -407,7 +429,7 @@ function NavigationButtons({
         <button
           onClick={onNavigateNewer}
           disabled={cooldownActive}
-          className="w-12 h-12 bg-white rounded-full shadow-lg border border-slate-200 flex items-center justify-center cursor-pointer group"
+          className="w-12 h-12 bg-white rounded-full border border-slate-200 flex items-center justify-center cursor-pointer group"
           title="Newer post (page left)"
         >
           <ArrowLeft className="w-5 h-5 text-slate-600 group-hover:rotate-9 transition-transform duration-200" />
@@ -416,7 +438,7 @@ function NavigationButtons({
         <button
           onClick={onNavigateOlder}
           disabled={cooldownActive}
-          className="w-12 h-12 bg-white rounded-full shadow-lg border border-slate-200 flex items-center justify-center cursor-pointer group"
+          className="w-12 h-12 bg-white rounded-full border border-slate-200 flex items-center justify-center cursor-pointer group"
           title="Older post (page right)"
         >
           <ArrowRight className="w-5 h-5 text-slate-600 group-hover:-rotate-9 transition-transform duration-200" />
@@ -429,7 +451,7 @@ function NavigationButtons({
           <button
             onClick={onNavigateNewer}
             disabled={cooldownActive}
-            className="w-12 h-12 bg-white rounded-full shadow-lg border border-slate-200 flex items-center justify-center cursor-pointer group"
+            className="w-12 h-12 bg-white rounded-full border border-slate-200 flex items-center justify-center cursor-pointer group"
             title="Newer post (page left)"
           >
             <ArrowLeft className="w-5 h-5 text-slate-600 group-hover:rotate-9 transition-transform duration-200" />
@@ -438,7 +460,7 @@ function NavigationButtons({
           <button
             onClick={onNavigateOlder}
             disabled={cooldownActive}
-            className="w-12 h-12 bg-white rounded-full shadow-lg border border-slate-200 flex items-center justify-center cursor-pointer group"
+            className="w-12 h-12 bg-white rounded-full border border-slate-200 flex items-center justify-center cursor-pointer group"
             title="Older post (page right)"
           >
             <ArrowRight className="w-5 h-5 text-slate-600 group-hover:-rotate-9 transition-transform duration-200" />
@@ -460,7 +482,7 @@ export default function HomeView({ isMobileLandscape }: { isMobileLandscape?: bo
     
     navigationFn();
     setCooldownActive(true);
-    setTimeout(() => setCooldownActive(false), 500);
+    setTimeout(() => setCooldownActive(false), 200);
   };
 
   // Keyboard navigation
@@ -507,12 +529,15 @@ export default function HomeView({ isMobileLandscape }: { isMobileLandscape?: bo
 
   return (
     <>
-      <div className="w-full h-full  flex items-center justify-center p-8">
+      <div className="w-full h-full flex items-center justify-center p-8">
         {/* Book Pages Layout */}
-        <div className="max-w-4xl w-full">
+        <div className="max-w-4xl w-full relative">
+          {/* Vertical Timestamp - Desktop Only */}
+          <VerticalTimestamp timestamp={selectedPost.created_at} />
+
           <div className="flex flex-col md:block gap-8">
             <BookPages post={selectedPost} />
-            <NavigationButtons 
+            <NavigationButtons
               onNavigateNewer={() => handleNavigationWithCooldown(navigateToNewerPost)}
               onNavigateOlder={() => handleNavigationWithCooldown(navigateToOlderPost)}
               cooldownActive={cooldownActive}

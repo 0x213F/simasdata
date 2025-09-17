@@ -32,7 +32,7 @@ export default function Header({ currentRoute, onNavigate }: HeaderProps) {
       <style dangerouslySetInnerHTML={{ __html: headerStyle }} />
       <div
         id="header"
-        className="fixed top-0 left-0 w-full z-30 header-container"
+        className="fixed top-0 left-0 w-full z-30 header-container bg-slate-50/40 backdrop-blur-md"
         style={{
           height: '80px',
           display: 'flex',

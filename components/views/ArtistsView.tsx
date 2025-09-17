@@ -21,18 +21,9 @@ export default function ArtistsView() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <div className="relative min-h-[60vh] flex items-center justify-center">
-        <div className="text-center px-8">
-          <h1 className="hero-title mb-6">Featured Artists</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Discover the talented artists we represent and their extraordinary works
-          </p>
-        </div>
-      </div>
 
       {/* Artists Grid */}
-      <div className="py-20 px-8">
+      <div className="pt-8 px-8">
         <div className="max-w-7xl mx-auto">
           {loading ? (
             <div className="flex justify-center items-center py-20">
@@ -79,18 +70,6 @@ export default function ArtistsView() {
         </div>
       </div>
 
-      {/* Call to Action */}
-      <div className="py-20 px-8 bg-slate-50">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-light mb-6">Interested in Representing an Artist?</h2>
-          <p className="text-gray-600 mb-8 text-lg">
-            We're always looking for exceptional talent to join our gallery family.
-          </p>
-          <button className="contact-button">
-            Submit Your Portfolio
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

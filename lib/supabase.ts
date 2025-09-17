@@ -58,6 +58,18 @@ export interface Artist {
   updated_at: string
 }
 
+// Type definitions for our Project table
+export interface Project {
+  id: number
+  name: string
+  medium: string
+  description: string
+  image_url?: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
 // Type definitions for our BlogPost table
 export interface BlogPost {
   id: number
