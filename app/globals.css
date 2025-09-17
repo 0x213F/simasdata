@@ -114,6 +114,7 @@ body {
   cursor: pointer;
 }
 
+/* Default underline animation (left to right) */
 .main-nav button::after {
   content: '';
   position: absolute;
@@ -127,6 +128,23 @@ body {
 
 .main-nav button:hover::after,
 .main-nav button.active::after {
+  width: 100%;
+}
+
+/* Right to left underline animation for header */
+.underline-right-to-left::after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  right: 0;
+  width: 0;
+  height: 1px;
+  background-color: var(--black);
+  transition: var(--transition);
+}
+
+.underline-right-to-left:hover::after,
+.underline-right-to-left.active::after {
   width: 100%;
 }
 

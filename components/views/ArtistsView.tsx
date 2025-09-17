@@ -3,11 +3,14 @@
 import { useState } from 'react'
 import { Plus, X } from 'lucide-react'
 import { useArtistStore, useAuthStore } from '../../lib/store'
+import { uploadBlogImage } from '../../lib/supabase'
 
 // Add Artist Modal Component
 function AddArtistModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [image, setImage] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { createArtist } = useArtistStore()
@@ -15,7 +18,21 @@ function AddArtistModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
   const resetForm = () => {
     setName('')
     setDescription('')
+    setImage(null)
+    setImagePreview(null)
     setError(null)
+  }
+
+  // Handle image file selection
+  const handleImageSelect = (file: File | null) => {
+    setImage(file)
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (e) => setImagePreview(e.target?.result as string)
+      reader.readAsDataURL(file)
+    } else {
+      setImagePreview(null)
+    }
   }
 
   const isValid = () => {
@@ -36,7 +53,18 @@ function AddArtistModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
     setError(null)
 
     try {
-      const success = await createArtist(name, description)
+      // Upload image if provided
+      let imageUrl = null
+      if (image) {
+        imageUrl = await uploadBlogImage(image)
+        if (!imageUrl) {
+          setError('Failed to upload image. Please try again.')
+          setIsSubmitting(false)
+          return
+        }
+      }
+
+      const success = await createArtist(name, description, imageUrl || undefined)
 
       if (success) {
         resetForm()
@@ -109,6 +137,30 @@ function AddArtistModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
               <div className="text-right text-sm text-slate-500 mt-1">
                 {description.length}/500
               </div>
+            </div>
+
+            {/* Image Upload Field */}
+            <div>
+              <label htmlFor="image" className="block text-sm font-medium text-slate-700 mb-2">
+                Image (Optional)
+              </label>
+              <input
+                type="file"
+                id="image"
+                accept="image/*"
+                onChange={(e) => handleImageSelect(e.target.files?.[0] || null)}
+                disabled={isSubmitting}
+                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50"
+              />
+              {imagePreview && (
+                <div className="mt-3">
+                  <img
+                    src={imagePreview}
+                    alt="Artist preview"
+                    className="w-full h-32 object-cover rounded-lg border border-slate-200"
+                  />
+                </div>
+              )}
             </div>
           </div>
 

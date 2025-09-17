@@ -62,7 +62,7 @@ export default function Header({ currentRoute, onNavigate }: HeaderProps) {
             <li key={item.id} style={{ margin: 0 }}>
               <button
                 onClick={() => onNavigate(item.id)}
-                className={currentRoute === item.id ? 'active' : ''}
+                className={`underline-right-to-left ${currentRoute === item.id ? 'active' : ''}`}
                 style={{
                   color: 'var(--black)',
                   textDecoration: 'none',

@@ -25,7 +25,7 @@ interface ArtistStore {
   error: string | null
   fetchArtists: () => Promise<void>
   refetchArtists: () => Promise<void>
-  createArtist: (name: string, description: string) => Promise<boolean>
+  createArtist: (name: string, description: string, imageUrl?: string) => Promise<boolean>
 }
 
 interface ProjectStore {
@@ -34,7 +34,7 @@ interface ProjectStore {
   error: string | null
   fetchProjects: () => Promise<void>
   refetchProjects: () => Promise<void>
-  createProject: (name: string, description: string) => Promise<boolean>
+  createProject: (name: string, description: string, imageUrl?: string) => Promise<boolean>
 }
 
 interface BlogPostStore {
@@ -135,7 +135,7 @@ export const useArtistStore = create<ArtistStore>((set, get) => ({
     }
   },
 
-  createArtist: async (name: string, description: string) => {
+  createArtist: async (name: string, description: string, imageUrl?: string) => {
     const state = get()
     if (state.loading) {
       return false
@@ -144,13 +144,18 @@ export const useArtistStore = create<ArtistStore>((set, get) => ({
     set({ loading: true, error: null })
 
     try {
+      const insertData: any = {
+        name: name.trim(),
+        description: description.trim(),
+        is_active: true
+      }
+      if (imageUrl) {
+        insertData.image_url = imageUrl
+      }
+
       const { data, error } = await supabase
         .from('Artist')
-        .insert({
-          name: name.trim(),
-          description: description.trim(),
-          is_active: true
-        })
+        .insert(insertData)
         .select()
         .single()
 
@@ -256,7 +261,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     }
   },
 
-  createProject: async (name: string, description: string) => {
+  createProject: async (name: string, description: string, imageUrl?: string) => {
     const state = get()
     if (state.loading) {
       return false
@@ -265,13 +270,18 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     set({ loading: true, error: null })
 
     try {
+      const insertData: any = {
+        name: name.trim(),
+        description: description.trim(),
+        is_active: true
+      }
+      if (imageUrl) {
+        insertData.image_url = imageUrl
+      }
+
       const { data, error } = await supabase
         .from('Project')
-        .insert({
-          name: name.trim(),
-          description: description.trim(),
-          is_active: true
-        })
+        .insert(insertData)
         .select()
         .single()
 
