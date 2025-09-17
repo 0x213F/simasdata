@@ -59,7 +59,7 @@ export default function Footer() {
         onTouchEnd={handlePressEnd}
         onTouchCancel={handlePressEnd}
       >
-        simasdata
+        SIMASDATA
       </div>
 
       {/* Center: Location */}

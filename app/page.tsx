@@ -15,7 +15,7 @@ function SplashImage({ show }: { show: boolean }) {
     <div className="absolute inset-0 z-50">
       <Image
         src="./simasdata-1.jpg"
-        alt="Gallery Landing"
+        alt="SIMASDATA Landing"
         fill
         className="object-cover"
         priority
