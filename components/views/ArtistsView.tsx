@@ -229,8 +229,21 @@ export default function ArtistsView() {
   return (
     <>
       <div className="min-h-screen">
+        {/* Hero Section */}
+        <div className="pt-16 pb-12 px-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-4xl md:text-5xl font-light text-slate-900 mb-4 tracking-wide">
+              Artists
+            </h1>
+            <p className="text-lg text-slate-600 font-light leading-relaxed max-w-2xl mx-auto">
+              Visionaries who shape meaning through material and method—each voice
+              contributing to a collective dialogue of contemporary expression.
+            </p>
+          </div>
+        </div>
+
         {/* Artists Grid */}
-        <div className="pt-8 px-8">
+        <div className="px-8 pb-20">
           <div className="max-w-7xl mx-auto">
             {loading ? (
               <div className="flex justify-center items-center py-20">

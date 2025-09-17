@@ -139,7 +139,7 @@ export default function Home() {
   if (showSplash) {
     return (
       <div className="fixed inset-0 w-full h-full bg-white">
-        <SplashImage show={!showVideo} />
+        {/* <SplashImage show={!showVideo} /> */}
         <SplashVideo show={true} fadeOut={videoFadeOut} videoRef={videoRef} />
       </div>
     );
