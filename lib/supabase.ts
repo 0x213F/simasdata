@@ -50,7 +50,6 @@ export const uploadBlogImage = async (file: File): Promise<string | null> => {
 export interface Artist {
   id: number
   name: string
-  medium: string
   description: string
   image_url?: string
   is_active: boolean
@@ -62,7 +61,6 @@ export interface Artist {
 export interface Project {
   id: number
   name: string
-  medium: string
   description: string
   image_url?: string
   is_active: boolean

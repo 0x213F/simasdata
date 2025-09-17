@@ -212,8 +212,7 @@ export default function ArtistsView() {
                       <div className={`h-80 bg-gradient-to-br ${getGradientColors(index)}`}></div>
                     )}
                     <div className="p-8">
-                      <h3 className="text-2xl font-medium mb-2">{artist.name}</h3>
-                      <p className="text-gray-600 mb-4">{artist.medium}</p>
+                      <h3 className="text-2xl font-medium mb-4">{artist.name}</h3>
                       <p className="text-sm text-gray-500 leading-relaxed">
                         {artist.description}
                       </p>

@@ -149,7 +149,6 @@ export const useArtistStore = create<ArtistStore>((set, get) => ({
         .insert({
           name: name.trim(),
           description: description.trim(),
-          medium: '', // Default empty medium
           is_active: true
         })
         .select()
@@ -271,7 +270,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
         .insert({
           name: name.trim(),
           description: description.trim(),
-          medium: '', // Default empty medium
           is_active: true
         })
         .select()

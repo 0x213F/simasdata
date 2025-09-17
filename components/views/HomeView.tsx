@@ -14,18 +14,6 @@ function formatTimestamp(dateString: string): string {
   return `${month} ${day} ${year}`;
 }
 
-// Vertical Timestamp Component
-function VerticalTimestamp({ timestamp }: { timestamp: string }) {
-  const formattedDate = formatTimestamp(timestamp);
-
-  return (
-    <div className="hidden md:flex absolute -left-6 bottom-16 transform -rotate-90 origin-left">
-      <div className="text-slate-500 text-sm font-mono tracking-wider whitespace-nowrap">
-        {formattedDate}
-      </div>
-    </div>
-  );
-}
 
 // Book Pages Component
 function BookPages({ post }: { post: BlogPost }) {
@@ -413,58 +401,80 @@ function FloatingAddButton({ isMobileLandscape, onOpenModal }: {
 }
 
 // Navigation Buttons Component
-function NavigationButtons({ 
-  onNavigateNewer, 
-  onNavigateOlder, 
-  cooldownActive 
-}: { 
+function NavigationButtons({
+  onNavigateNewer,
+  onNavigateOlder,
+  cooldownActive,
+  timestamp
+}: {
   onNavigateNewer: () => void;
   onNavigateOlder: () => void;
   cooldownActive: boolean;
+  timestamp: string;
 }) {
+  const formattedDate = formatTimestamp(timestamp);
+
   return (
     <>
-      {/* Mobile Navigation */}
-      <div className="flex gap-4 justify-center md:hidden">
-        <button
-          onClick={onNavigateNewer}
-          disabled={cooldownActive}
-          className="w-12 h-12 bg-white rounded-full border border-slate-200 flex items-center justify-center cursor-pointer group"
-          title="Newer post (page left)"
-        >
-          <ArrowLeft className="w-5 h-5 text-slate-600 group-hover:rotate-9 transition-transform duration-200" />
-        </button>
-        
-        <button
-          onClick={onNavigateOlder}
-          disabled={cooldownActive}
-          className="w-12 h-12 bg-white rounded-full border border-slate-200 flex items-center justify-center cursor-pointer group"
-          title="Older post (page right)"
-        >
-          <ArrowRight className="w-5 h-5 text-slate-600 group-hover:-rotate-9 transition-transform duration-200" />
-        </button>
-      </div>
+      {/* Mobile Navigation - Stacked Layout */}
+      <div className="flex flex-col md:hidden gap-4 items-center mt-6">
+        {/* Timestamp */}
+        <div className="text-slate-500 text-sm font-mono tracking-wider">
+          {formattedDate}
+        </div>
 
-      {/* Desktop Navigation */}
-      <div className="hidden md:flex justify-end mt-6">
-        <div className="flex gap-4 mr-4">
+        {/* Navigation Buttons */}
+        <div className="flex gap-4">
           <button
             onClick={onNavigateNewer}
             disabled={cooldownActive}
-            className="w-12 h-12 bg-white rounded-full border border-slate-200 flex items-center justify-center cursor-pointer group"
+            className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center cursor-pointer group"
             title="Newer post (page left)"
           >
-            <ArrowLeft className="w-5 h-5 text-slate-600 group-hover:rotate-9 transition-transform duration-200" />
+            <ArrowLeft className="w-5 h-5 text-slate-500 group-hover:rotate-9 transition-transform duration-200" />
           </button>
-          
+
           <button
             onClick={onNavigateOlder}
             disabled={cooldownActive}
-            className="w-12 h-12 bg-white rounded-full border border-slate-200 flex items-center justify-center cursor-pointer group"
+            className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center cursor-pointer group"
             title="Older post (page right)"
           >
-            <ArrowRight className="w-5 h-5 text-slate-600 group-hover:-rotate-9 transition-transform duration-200" />
+            <ArrowRight className="w-5 h-5 text-slate-500 group-hover:-rotate-9 transition-transform duration-200" />
           </button>
+        </div>
+      </div>
+
+      {/* Desktop Navigation - Left/Right Panel Layout */}
+      <div className="hidden md:flex gap-8 items-center justify-center mt-6">
+        {/* Left Panel - Same width as blog post (w-80) */}
+        <div className="w-80 flex items-center justify-start">
+          <div className="text-slate-500 text-sm font-mono tracking-wider">
+            {formattedDate}
+          </div>
+        </div>
+
+        {/* Right Panel - Same width as blog post (w-80) */}
+        <div className="w-80 flex items-center justify-end">
+          <div className="flex gap-4">
+            <button
+              onClick={onNavigateNewer}
+              disabled={cooldownActive}
+              className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center cursor-pointer group"
+              title="Newer post (page left)"
+            >
+              <ArrowLeft className="w-5 h-5 text-slate-500 group-hover:rotate-9 transition-transform duration-200" />
+            </button>
+
+            <button
+              onClick={onNavigateOlder}
+              disabled={cooldownActive}
+              className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center cursor-pointer group"
+              title="Older post (page right)"
+            >
+              <ArrowRight className="w-5 h-5 text-slate-500 group-hover:-rotate-9 transition-transform duration-200" />
+            </button>
+          </div>
         </div>
       </div>
     </>
@@ -531,16 +541,14 @@ export default function HomeView({ isMobileLandscape }: { isMobileLandscape?: bo
     <>
       <div className="w-full h-full flex items-center justify-center p-8">
         {/* Book Pages Layout */}
-        <div className="max-w-4xl w-full relative">
-          {/* Vertical Timestamp - Desktop Only */}
-          <VerticalTimestamp timestamp={selectedPost.created_at} />
-
+        <div className="max-w-4xl w-full">
           <div className="flex flex-col md:block gap-8">
             <BookPages post={selectedPost} />
             <NavigationButtons
               onNavigateNewer={() => handleNavigationWithCooldown(navigateToNewerPost)}
               onNavigateOlder={() => handleNavigationWithCooldown(navigateToOlderPost)}
               cooldownActive={cooldownActive}
+              timestamp={selectedPost.created_at}
             />
           </div>
         </div>

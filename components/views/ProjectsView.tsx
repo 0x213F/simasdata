@@ -212,8 +212,7 @@ export default function ProjectsView() {
                       <div className={`h-80 bg-gradient-to-br ${getGradientColors(index)}`}></div>
                     )}
                     <div className="p-8">
-                      <h3 className="text-2xl font-medium mb-2">{project.name}</h3>
-                      <p className="text-gray-600 mb-4">{project.medium}</p>
+                      <h3 className="text-2xl font-medium mb-4">{project.name}</h3>
                       <p className="text-sm text-gray-500 leading-relaxed">
                         {project.description}
                       </p>
