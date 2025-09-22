@@ -78,3 +78,54 @@ export interface BlogPost {
   created_at: string
   updated_at: string
 }
+
+// Blog post API functions
+export const updateBlogPost = async (
+  id: number,
+  pane1Text: string | null,
+  pane2Text: string | null,
+  pane1ImageUrl: string | null,
+  pane2ImageUrl: string | null
+): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('BlogPost')
+      .update({
+        pane_1_text: pane1Text,
+        pane_2_text: pane2Text,
+        pane_1_imgurl: pane1ImageUrl,
+        pane_2_imgurl: pane2ImageUrl,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+
+    if (error) {
+      console.error('Error updating blog post:', error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error updating blog post:', error)
+    return false
+  }
+}
+
+export const deleteBlogPost = async (id: number): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('BlogPost')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error('Error deleting blog post:', error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error deleting blog post:', error)
+    return false
+  }
+}

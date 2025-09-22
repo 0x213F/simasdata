@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuthStore } from '../lib/store'
+import { useAuthStore } from '@/lib/store'
 import { useState, useRef } from 'react'
 
 export default function Footer() {
@@ -42,7 +42,8 @@ export default function Footer() {
         __html: `
           @media (max-width: 767px) {
             footer {
-              padding: 0 20px !important;
+              padding: 0 12px !important;
+              grid-template-columns: 1fr auto !important;
             }
           }
         `
@@ -68,16 +69,16 @@ export default function Footer() {
       </div>
 
       {/* Right: Links */}
-      <div className="flex items-center space-x-8 justify-end">
-        <a 
-          href="mailto:hello@gallery.com" 
+      <div className="flex items-center space-x-6 md:space-x-8 justify-end">
+        <a
+          href="mailto:hello@gallery.com"
           className="text-xs tracking-[0.1em] text-gray-500 hover:text-black transition-colors font-light"
         >
           Contact
         </a>
-        <a 
-          href="https://www.instagram.com/simasdata/" 
-          target="_blank" 
+        <a
+          href="https://www.instagram.com/simasdata/"
+          target="_blank"
           rel="noopener noreferrer"
           className="text-xs tracking-[0.1em] text-gray-500 hover:text-black transition-colors font-light"
         >

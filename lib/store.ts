@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { supabase, Artist, Project, BlogPost } from './supabase'
+import { supabase, Artist, Project, BlogPost, updateBlogPost as updateBlogPostAPI, deleteBlogPost as deleteBlogPostAPI } from './supabase'
 import { User } from '@supabase/supabase-js'
 
 // Utility function to preload images
@@ -46,6 +46,8 @@ interface BlogPostStore {
   fetchRecentPosts: () => Promise<void>
   fetchMoreOlderPosts: () => Promise<void>
   createBlogPost: (pane1Text: string | null, pane2Text: string | null, pane1ImageUrl?: string | null, pane2ImageUrl?: string | null) => Promise<boolean>
+  updateBlogPost: (id: number, pane1Text: string | null, pane2Text: string | null, pane1ImageUrl?: string | null, pane2ImageUrl?: string | null) => Promise<boolean>
+  deleteBlogPost: (id: number) => Promise<boolean>
   navigateToNewerPost: () => void
   navigateToOlderPost: () => void
   setSelectedIndex: (index: number) => void
@@ -467,6 +469,119 @@ export const useBlogPostStore = create<BlogPostStore>((set, get) => ({
       set({ 
         loading: false, 
         error: err.message || 'Failed to create blog post'
+      })
+      return false
+    }
+  },
+
+  updateBlogPost: async (id: number, pane1Text: string | null, pane2Text: string | null, pane1ImageUrl?: string | null, pane2ImageUrl?: string | null) => {
+    const state = get()
+    if (state.loading) {
+      return false
+    }
+
+    set({ loading: true, error: null })
+
+    try {
+      const success = await updateBlogPostAPI(id, pane1Text, pane2Text, pane1ImageUrl || null, pane2ImageUrl || null)
+
+      if (!success) {
+        set({
+          loading: false,
+          error: 'Failed to update blog post'
+        })
+        return false
+      }
+
+      // Update the post in local state
+      const updatedPosts = state.posts.map(post =>
+        post.id === id
+          ? {
+              ...post,
+              pane_1_text: pane1Text || undefined,
+              pane_2_text: pane2Text || undefined,
+              pane_1_imgurl: pane1ImageUrl || undefined,
+              pane_2_imgurl: pane2ImageUrl || undefined,
+              updated_at: new Date().toISOString()
+            }
+          : post
+      )
+
+      const updatedSelectedPost = state.selectedPost?.id === id
+        ? updatedPosts[state.selectedIndex]
+        : state.selectedPost
+
+      set({
+        loading: false,
+        error: null,
+        posts: updatedPosts,
+        selectedPost: updatedSelectedPost
+      })
+
+      return true
+    } catch (err: any) {
+      set({
+        loading: false,
+        error: err.message || 'Failed to update blog post'
+      })
+      return false
+    }
+  },
+
+  deleteBlogPost: async (id: number) => {
+    const state = get()
+    if (state.loading) {
+      return false
+    }
+
+    set({ loading: true, error: null })
+
+    try {
+      const success = await deleteBlogPostAPI(id)
+
+      if (!success) {
+        set({
+          loading: false,
+          error: 'Failed to delete blog post'
+        })
+        return false
+      }
+
+      // Remove the post from local state
+      const updatedPosts = state.posts.filter(post => post.id !== id)
+
+      // Adjust selectedIndex if necessary
+      let newSelectedIndex = state.selectedIndex
+      let newSelectedPost = null
+
+      if (updatedPosts.length > 0) {
+        // If we deleted the selected post, select the next one
+        if (state.selectedPost?.id === id) {
+          newSelectedIndex = Math.min(state.selectedIndex, updatedPosts.length - 1)
+        }
+        // If we deleted a post before the selected one, adjust index
+        else if (state.posts.findIndex(p => p.id === id) < state.selectedIndex) {
+          newSelectedIndex = state.selectedIndex - 1
+        }
+
+        newSelectedPost = updatedPosts[newSelectedIndex] || null
+      } else {
+        newSelectedIndex = 0
+      }
+
+      set({
+        loading: false,
+        error: null,
+        posts: updatedPosts,
+        selectedIndex: newSelectedIndex,
+        selectedPost: newSelectedPost
+      })
+
+      return true
+    } catch (err: any) {
+      set({
+        loading: false,
+        error: err.message || 'Failed to delete blog post'
       })
       return false
     }

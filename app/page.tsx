@@ -1,46 +1,69 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
-import MainWebsite from '../components/MainWebsite';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import { useArtistStore, useProjectStore, useAuthStore, useBlogPostStore } from '../lib/store';
+import MainWebsite from '@/components/MainWebsite';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import { useArtistStore, useProjectStore, useAuthStore, useBlogPostStore } from '@/lib/store';
 
-// Splash components
-function SplashImage({ show }: { show: boolean }) {
-  if (!show) return null;
+// Splash overlay component
+function SplashOverlay() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isFading, setIsFading] = useState(false);
 
-  return (
-    <div className="absolute inset-0 z-50">
-      <Image
-        src="./simasdata-1.jpg"
-        alt="SIMASDATA Landing"
-        fill
-        className="object-cover"
-        priority
-      />
-    </div>
-  );
-}
+  // Timing constants
+  const PAUSE_DURATION = 750; // milliseconds to stay paused
+  const PLAY_BEFORE_FADE = 1500; // milliseconds to play before fade starts
+  const FADE_DURATION = 2000; // milliseconds for fade transition
 
-function SplashVideo({ show, fadeOut, videoRef }: {
-  show: boolean;
-  fadeOut: boolean;
-  videoRef: React.RefObject<HTMLVideoElement | null>;
-}) {
-  if (!show) return null;
+  useEffect(() => {
+    // Step 1: Start playing video after pause duration
+    const playTimer = setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.play();
+      }
+    }, PAUSE_DURATION);
+
+    // Step 2: Start fade after video has played
+    const fadeTimer = setTimeout(() => {
+      setIsFading(true);
+    }, PAUSE_DURATION + PLAY_BEFORE_FADE);
+
+    return () => {
+      clearTimeout(playTimer);
+      clearTimeout(fadeTimer);
+    };
+  }, []);
 
   return (
     <div
-      className={`absolute inset-0 z-40 transition-opacity duration-500 ${
-        fadeOut ? 'opacity-0' : 'opacity-100'
+      className={`fixed inset-0 z-50 transition-all ${
+        isFading ? 'opacity-0' : 'opacity-100'
       }`}
+      style={{
+        pointerEvents: isFading ? 'none' : 'auto',
+        transitionDuration: `${FADE_DURATION}ms`
+      }}
     >
+      {/* White background that fades out */}
+      <div
+        className={`absolute inset-0 bg-white transition-opacity ${
+          isFading ? 'opacity-0' : 'opacity-100'
+        }`}
+        style={{
+          transitionDuration: `${FADE_DURATION}ms`
+        }}
+      />
+
+      {/* Video that also fades out */}
       <video
         ref={videoRef}
-        className="w-full h-full object-cover"
-        autoPlay
+        className={`relative w-full h-full object-cover transition-opacity ${
+          isFading ? 'opacity-0' : 'opacity-100'
+        }`}
+        style={{
+          transitionDuration: `${FADE_DURATION}ms`
+        }}
         muted
         loop
         playsInline
@@ -53,51 +76,12 @@ function SplashVideo({ show, fadeOut, videoRef }: {
 }
 
 export default function Home() {
-  const [currentRoute, setCurrentRoute] = useState('splash');
+  const [currentRoute, setCurrentRoute] = useState('home');
   const [isMobileLandscape, setIsMobileLandscape] = useState(false);
-  const [showSplash, setShowSplash] = useState(true);
-  const [showVideo, setShowVideo] = useState(false);
-  const [videoFadeOut, setVideoFadeOut] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const fetchArtists = useArtistStore(state => state.fetchArtists);
   const fetchProjects = useProjectStore(state => state.fetchProjects);
   const checkAuth = useAuthStore(state => state.checkAuth);
   const fetchRecentPosts = useBlogPostStore(state => state.fetchRecentPosts);
-
-  const handleSplashComplete = () => {
-    setShowSplash(false);
-    setCurrentRoute('home');
-  };
-
-  // Splash animation sequence
-  useEffect(() => {
-    if (showSplash) {
-      // Step 1: Show image for 1 second
-      const timer1 = setTimeout(() => {
-        // Step 2: Immediately switch to video (no transition/fade)
-        setShowVideo(true);
-        if (videoRef.current) {
-          videoRef.current.play();
-        }
-      }, 600);
-
-      // Step 3: Start fade at end of video (after 3 seconds total)
-      const timer2 = setTimeout(() => {
-        setVideoFadeOut(true);
-      }, 2000);
-
-      // Step 4: Display website (after fade completes)
-      const timer3 = setTimeout(() => {
-        handleSplashComplete();
-      }, 2500);
-
-      return () => {
-        clearTimeout(timer1);
-        clearTimeout(timer2);
-        clearTimeout(timer3);
-      };
-    }
-  }, [showSplash]);
 
   // Check if device is mobile in landscape mode
   useEffect(() => {
@@ -135,33 +119,28 @@ export default function Home() {
     setCurrentRoute(routeId);
   };
 
-  // Show splash screen covering entire viewport
-  if (showSplash) {
-    return (
-      <div className="fixed inset-0 w-full h-full bg-white">
-        {/* <SplashImage show={!showVideo} /> */}
-        <SplashVideo show={true} fadeOut={videoFadeOut} videoRef={videoRef} />
-      </div>
-    );
-  }
-
-  // Show main website after splash
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Fixed Header - Hidden in mobile landscape */}
-      {!isMobileLandscape && (
-        <Header currentRoute={currentRoute} onNavigate={handleNavigation} />
-      )}
+    <>
+      {/* Main website - always rendered */}
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        {/* Fixed Header - Hidden in mobile landscape */}
+        {!isMobileLandscape && (
+          <Header currentRoute={currentRoute} onNavigate={handleNavigation} />
+        )}
 
-      {/* Fixed Footer - Hidden in mobile landscape */}
-      {!isMobileLandscape && <Footer />}
+        {/* Fixed Footer - Hidden in mobile landscape */}
+        {!isMobileLandscape && <Footer />}
 
-      {/* Main Website Content - Full height in mobile landscape */}
-      <MainWebsite
-        currentRoute={currentRoute}
-        onNavigate={handleNavigation}
-        isMobileLandscape={isMobileLandscape}
-      />
-    </div>
+        {/* Main Website Content - Full height in mobile landscape */}
+        <MainWebsite
+          currentRoute={currentRoute}
+          onNavigate={handleNavigation}
+          isMobileLandscape={isMobileLandscape}
+        />
+      </div>
+
+      {/* Splash overlay - fades out to reveal website underneath */}
+      <SplashOverlay />
+    </>
   );
 }

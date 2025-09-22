@@ -1,9 +1,9 @@
 'use client'
 
 // Import view components
-import HomeView from './views/HomeView';
-import ProjectsView from './views/ProjectsView';
-import ArtistsView from './views/ArtistsView';
+import HomeView from '@/components/views/HomeView';
+import ProjectsView from '@/components/views/ProjectsView';
+import ArtistsView from '@/components/views/ArtistsView';
 
 interface MainWebsiteProps {
   currentRoute: string;

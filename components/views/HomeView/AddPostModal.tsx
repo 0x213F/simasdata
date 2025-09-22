@@ -1,80 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { ArrowLeft, ArrowRight, Plus, X } from 'lucide-react';
-import { useBlogPostStore, useAuthStore } from '../../lib/store';
-import { uploadBlogImage, BlogPost } from '../../lib/supabase';
+import { useState } from 'react';
+import { X } from 'lucide-react';
+import { useBlogPostStore } from '@/lib/store';
+import { uploadBlogImage } from '@/lib/supabase';
 
-// Helper function to format timestamp for vertical display
-function formatTimestamp(dateString: string): string {
-  const date = new Date(dateString);
-  const month = date.toLocaleDateString(undefined, { month: 'short' }).toUpperCase();
-  const day = date.getDate().toString().padStart(2, '0');
-  const year = date.getFullYear();
-  return `${month} ${day} ${year}`;
-}
-
-
-// Book Pages Component
-function BookPages({ post }: { post: BlogPost }) {
-  // Helper function to render pane content
-  const renderPaneContent = (text?: string, imageUrl?: string) => {
-    if (imageUrl) {
-      return (
-        <img 
-          src={imageUrl} 
-          alt="Blog post content"
-          className="w-full h-full object-cover rounded-lg"
-        />
-      );
-    } else if (text) {
-      return (
-        <div className="text-slate-800 text-base leading-relaxed text-center">
-          {text}
-        </div>
-      );
-    } else {
-      return (
-        <div className="text-slate-400 text-base text-center">
-          No content available
-        </div>
-      );
-    }
-  };
-
-  return (
-    <>
-      {/* Mobile: Stacked Layout */}
-      <div className="flex flex-col md:hidden gap-4 items-center">
-        {/* Page 1 */}
-        <div className={`bg-white rounded-lg shadow-lg aspect-square w-64 flex items-center justify-center border border-slate-200 ${post.pane_1_imgurl ? 'p-0 overflow-hidden' : 'p-6'}`}>
-          {renderPaneContent(post.pane_1_text, post.pane_1_imgurl)}
-        </div>
-
-        {/* Page 2 */}
-        <div className={`bg-white rounded-lg shadow-lg aspect-square w-64 flex items-center justify-center border border-slate-200 ${post.pane_2_imgurl ? 'p-0 overflow-hidden' : 'p-6'}`}>
-          {renderPaneContent(post.pane_2_text, post.pane_2_imgurl)}
-        </div>
-      </div>
-
-      {/* Desktop: Side-by-side Layout */}
-      <div className="hidden md:flex gap-8 items-center justify-center">
-        {/* Left Page */}
-        <div className={`bg-white rounded-lg shadow-lg aspect-square w-80 flex items-center justify-center border border-slate-200 ${post.pane_1_imgurl ? 'p-0 overflow-hidden' : 'p-8'}`}>
-          {renderPaneContent(post.pane_1_text, post.pane_1_imgurl)}
-        </div>
-        
-        {/* Right Page */}
-        <div className={`bg-white rounded-lg shadow-lg aspect-square w-80 flex items-center justify-center border border-slate-200 ${post.pane_2_imgurl ? 'p-0 overflow-hidden' : 'p-8'}`}>
-          {renderPaneContent(post.pane_2_text, post.pane_2_imgurl)}
-        </div>
-      </div>
-    </>
-  );
-}
-
-// Add Post Modal Component
-function AddPostModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+export default function AddPostModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   // Pane content state
   const [pane1Type, setPane1Type] = useState<'text' | 'image'>('text');
   const [pane2Type, setPane2Type] = useState<'text' | 'image'>('text');
@@ -84,7 +15,7 @@ function AddPostModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
   const [pane2Image, setPane2Image] = useState<File | null>(null);
   const [pane1ImagePreview, setPane1ImagePreview] = useState<string | null>(null);
   const [pane2ImagePreview, setPane2ImagePreview] = useState<string | null>(null);
-  
+
   // Form state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -137,7 +68,7 @@ function AddPostModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isValid()) {
       setError('Both pages must have content');
       return;
@@ -176,7 +107,7 @@ function AddPostModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
         pane1ImageUrl,
         pane2ImageUrl
       );
-      
+
       if (success) {
         resetForm();
         onClose();
@@ -217,7 +148,7 @@ function AddPostModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
             {/* Page 1 */}
             <div>
               <h3 className="text-lg font-medium text-slate-800 mb-4">Page 1</h3>
-              
+
               {/* Page 1 Type Selection */}
               <div className="flex gap-4 mb-4">
                 <label className="flex items-center">
@@ -286,7 +217,7 @@ function AddPostModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
             {/* Page 2 */}
             <div>
               <h3 className="text-lg font-medium text-slate-800 mb-4">Page 2</h3>
-              
+
               {/* Page 2 Type Selection */}
               <div className="flex gap-4 mb-4">
                 <label className="flex items-center">
@@ -377,194 +308,5 @@ function AddPostModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
         </form>
       </div>
     </div>
-  );
-}
-
-// Floating Add Button Component
-function FloatingAddButton({ isMobileLandscape, onOpenModal }: { 
-  isMobileLandscape?: boolean;
-  onOpenModal: () => void;
-}) {
-  const { user } = useAuthStore();
-
-  if (!user || isMobileLandscape) return null;
-
-  return (
-    <button
-      onClick={onOpenModal}
-      className="fixed bottom-24 right-8 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 hover:shadow-xl flex items-center justify-center transition-all duration-200 z-50"
-      title="Add new post"
-    >
-      <Plus className="w-6 h-6" />
-    </button>
-  );
-}
-
-// Navigation Buttons Component
-function NavigationButtons({
-  onNavigateNewer,
-  onNavigateOlder,
-  cooldownActive,
-  timestamp
-}: {
-  onNavigateNewer: () => void;
-  onNavigateOlder: () => void;
-  cooldownActive: boolean;
-  timestamp: string;
-}) {
-  const formattedDate = formatTimestamp(timestamp);
-
-  return (
-    <>
-      {/* Mobile Navigation - Stacked Layout */}
-      <div className="flex flex-col md:hidden gap-4 items-center">
-        {/* Timestamp */}
-        <div className="text-slate-500 text-sm font-mono tracking-wider">
-          {formattedDate}
-        </div>
-
-        {/* Navigation Buttons */}
-        <div className="flex gap-4">
-          <button
-            onClick={onNavigateNewer}
-            disabled={cooldownActive}
-            className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center cursor-pointer group"
-            title="Newer post (page left)"
-          >
-            <ArrowLeft className="w-5 h-5 text-slate-500 group-hover:rotate-9 transition-transform duration-200" />
-          </button>
-
-          <button
-            onClick={onNavigateOlder}
-            disabled={cooldownActive}
-            className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center cursor-pointer group"
-            title="Older post (page right)"
-          >
-            <ArrowRight className="w-5 h-5 text-slate-500 group-hover:-rotate-9 transition-transform duration-200" />
-          </button>
-        </div>
-      </div>
-
-      {/* Desktop Navigation - Left/Right Panel Layout */}
-      <div className="hidden md:flex gap-8 items-center justify-center mt-6">
-        {/* Left Panel - Same width as blog post (w-80) */}
-        <div className="w-80 flex items-center justify-start">
-          <div className="text-slate-500 text-sm font-mono tracking-wider">
-            {formattedDate}
-          </div>
-        </div>
-
-        {/* Right Panel - Same width as blog post (w-80) */}
-        <div className="w-80 flex items-center justify-end">
-          <div className="flex gap-4">
-            <button
-              onClick={onNavigateNewer}
-              disabled={cooldownActive}
-              className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center cursor-pointer group"
-              title="Newer post (page left)"
-            >
-              <ArrowLeft className="w-5 h-5 text-slate-500 group-hover:rotate-9 transition-transform duration-200" />
-            </button>
-
-            <button
-              onClick={onNavigateOlder}
-              disabled={cooldownActive}
-              className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center cursor-pointer group"
-              title="Older post (page right)"
-            >
-              <ArrowRight className="w-5 h-5 text-slate-500 group-hover:-rotate-9 transition-transform duration-200" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
-
-export default function HomeView({ isMobileLandscape }: { isMobileLandscape?: boolean }) {
-  const { selectedPost, loading, error, navigateToNewerPost, navigateToOlderPost } = useBlogPostStore();
-  const [cooldownActive, setCooldownActive] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // Cooldown handler
-  const handleNavigationWithCooldown = (navigationFn: () => void) => {
-    if (cooldownActive) return;
-    
-    navigationFn();
-    setCooldownActive(true);
-    setTimeout(() => setCooldownActive(false), 200);
-  };
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowLeft') {
-        event.preventDefault();
-        handleNavigationWithCooldown(navigateToNewerPost);
-      } else if (event.key === 'ArrowRight') {
-        event.preventDefault();
-        handleNavigationWithCooldown(navigateToOlderPost);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [navigateToNewerPost, navigateToOlderPost, cooldownActive]);
-
-  if (loading && !selectedPost) {
-    return (
-      <div className="w-full h-full flex items-center justify-center ">
-        <div className="text-slate-600 text-lg">Loading recent posts...</div>
-      </div>
-    );
-  }
-
-  if (error && !selectedPost) {
-    return (
-      <div className="w-full h-full flex items-center justify-center ">
-        <div className="text-red-600 text-lg">Error loading posts: {error}</div>
-      </div>
-    );
-  }
-
-  if (!selectedPost) {
-    return (
-      <div className="w-full h-full flex items-center justify-center ">
-        <div className="text-slate-600 text-lg">No posts available</div>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      <div className="w-full h-full flex items-center justify-center p-8">
-        {/* Book Pages Layout */}
-        <div className="max-w-4xl w-full">
-          <div className="flex flex-col md:block gap-8">
-            <BookPages post={selectedPost} />
-            <NavigationButtons
-              onNavigateNewer={() => handleNavigationWithCooldown(navigateToNewerPost)}
-              onNavigateOlder={() => handleNavigationWithCooldown(navigateToOlderPost)}
-              cooldownActive={cooldownActive}
-              timestamp={selectedPost.created_at}
-            />
-          </div>
-        </div>
-      </div>
-      
-      {/* Floating Add Button */}
-      <FloatingAddButton 
-        isMobileLandscape={isMobileLandscape} 
-        onOpenModal={() => setIsModalOpen(true)}
-      />
-
-      {/* Add Post Modal */}
-      <AddPostModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-      />
-    </>
   );
 }
