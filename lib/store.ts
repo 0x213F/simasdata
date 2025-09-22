@@ -46,8 +46,8 @@ interface BlogPostStore {
   fetchRecentPosts: () => Promise<void>
   fetchMoreOlderPosts: () => Promise<void>
   createBlogPost: (pane1Text: string | null, pane2Text: string | null, pane1ImageUrl?: string | null, pane2ImageUrl?: string | null) => Promise<boolean>
-  updateBlogPost: (id: number, pane1Text: string | null, pane2Text: string | null, pane1ImageUrl?: string | null, pane2ImageUrl?: string | null) => Promise<boolean>
-  deleteBlogPost: (id: number) => Promise<boolean>
+  updateBlogPost: (uuid: string, pane1Text: string | null, pane2Text: string | null, pane1ImageUrl?: string | null, pane2ImageUrl?: string | null) => Promise<boolean>
+  deleteBlogPost: (uuid: string) => Promise<boolean>
   navigateToNewerPost: () => void
   navigateToOlderPost: () => void
   setSelectedIndex: (index: number) => void
@@ -474,7 +474,7 @@ export const useBlogPostStore = create<BlogPostStore>((set, get) => ({
     }
   },
 
-  updateBlogPost: async (id: number, pane1Text: string | null, pane2Text: string | null, pane1ImageUrl?: string | null, pane2ImageUrl?: string | null) => {
+  updateBlogPost: async (uuid: string, pane1Text: string | null, pane2Text: string | null, pane1ImageUrl?: string | null, pane2ImageUrl?: string | null) => {
     const state = get()
     if (state.loading) {
       return false
@@ -483,7 +483,7 @@ export const useBlogPostStore = create<BlogPostStore>((set, get) => ({
     set({ loading: true, error: null })
 
     try {
-      const success = await updateBlogPostAPI(id, pane1Text, pane2Text, pane1ImageUrl || null, pane2ImageUrl || null)
+      const success = await updateBlogPostAPI(uuid, pane1Text, pane2Text, pane1ImageUrl || null, pane2ImageUrl || null)
 
       if (!success) {
         set({
@@ -495,7 +495,7 @@ export const useBlogPostStore = create<BlogPostStore>((set, get) => ({
 
       // Update the post in local state
       const updatedPosts = state.posts.map(post =>
-        post.id === id
+        post.uuid === uuid
           ? {
               ...post,
               pane_1_text: pane1Text || undefined,
@@ -507,7 +507,7 @@ export const useBlogPostStore = create<BlogPostStore>((set, get) => ({
           : post
       )
 
-      const updatedSelectedPost = state.selectedPost?.id === id
+      const updatedSelectedPost = state.selectedPost?.uuid === uuid
         ? updatedPosts[state.selectedIndex]
         : state.selectedPost
 
@@ -528,7 +528,7 @@ export const useBlogPostStore = create<BlogPostStore>((set, get) => ({
     }
   },
 
-  deleteBlogPost: async (id: number) => {
+  deleteBlogPost: async (uuid: string) => {
     const state = get()
     if (state.loading) {
       return false
@@ -537,7 +537,7 @@ export const useBlogPostStore = create<BlogPostStore>((set, get) => ({
     set({ loading: true, error: null })
 
     try {
-      const success = await deleteBlogPostAPI(id)
+      const success = await deleteBlogPostAPI(uuid)
 
       if (!success) {
         set({
@@ -548,7 +548,7 @@ export const useBlogPostStore = create<BlogPostStore>((set, get) => ({
       }
 
       // Remove the post from local state
-      const updatedPosts = state.posts.filter(post => post.id !== id)
+      const updatedPosts = state.posts.filter(post => post.uuid !== uuid)
 
       // Adjust selectedIndex if necessary
       let newSelectedIndex = state.selectedIndex
@@ -556,11 +556,11 @@ export const useBlogPostStore = create<BlogPostStore>((set, get) => ({
 
       if (updatedPosts.length > 0) {
         // If we deleted the selected post, select the next one
-        if (state.selectedPost?.id === id) {
+        if (state.selectedPost?.uuid === uuid) {
           newSelectedIndex = Math.min(state.selectedIndex, updatedPosts.length - 1)
         }
         // If we deleted a post before the selected one, adjust index
-        else if (state.posts.findIndex(p => p.id === id) < state.selectedIndex) {
+        else if (state.posts.findIndex(p => p.uuid === uuid) < state.selectedIndex) {
           newSelectedIndex = state.selectedIndex - 1
         }
 

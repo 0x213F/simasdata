@@ -96,7 +96,7 @@ export default function HomeView({ isMobileLandscape }: { isMobileLandscape?: bo
         }}
         onDelete={async () => {
           if (selectedPost && window.confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
-            await deleteBlogPost(selectedPost.id);
+            await deleteBlogPost(selectedPost.uuid);
           }
         }}
         onAdmin={() => {

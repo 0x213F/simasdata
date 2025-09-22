@@ -70,7 +70,7 @@ export interface Project {
 
 // Type definitions for our BlogPost table
 export interface BlogPost {
-  id: number
+  uuid: string
   pane_1_text?: string
   pane_2_text?: string
   pane_1_imgurl?: string
@@ -81,23 +81,24 @@ export interface BlogPost {
 
 // Blog post API functions
 export const updateBlogPost = async (
-  id: number,
+  uuid: string,
   pane1Text: string | null,
   pane2Text: string | null,
   pane1ImageUrl: string | null,
   pane2ImageUrl: string | null
 ): Promise<boolean> => {
   try {
+    console.log('Attempting to update blog post with UUID:', uuid)
+
     const { error } = await supabase
       .from('BlogPost')
       .update({
         pane_1_text: pane1Text,
         pane_2_text: pane2Text,
         pane_1_imgurl: pane1ImageUrl,
-        pane_2_imgurl: pane2ImageUrl,
-        updated_at: new Date().toISOString()
+        pane_2_imgurl: pane2ImageUrl
       })
-      .eq('id', id)
+      .eq('uuid', uuid)
 
     if (error) {
       console.error('Error updating blog post:', error)
@@ -111,12 +112,12 @@ export const updateBlogPost = async (
   }
 }
 
-export const deleteBlogPost = async (id: number): Promise<boolean> => {
+export const deleteBlogPost = async (uuid: string): Promise<boolean> => {
   try {
     const { error } = await supabase
       .from('BlogPost')
       .delete()
-      .eq('id', id)
+      .eq('uuid', uuid)
 
     if (error) {
       console.error('Error deleting blog post:', error)

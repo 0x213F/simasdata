@@ -187,7 +187,7 @@ export default function PostModal({ isOpen, onClose, mode, editPost }: PostModal
         );
       } else {
         success = await updateBlogPost(
-          editPost!.id,
+          editPost!.uuid,
           pane1Type === 'text' ? pane1Text.trim() : null,
           pane2Type === 'text' ? pane2Text.trim() : null,
           pane1ImageUrl,

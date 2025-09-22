@@ -1,11 +1,5 @@
 import { getGradientColors } from './utils';
-
-interface Artist {
-  id: string;
-  name: string;
-  description: string;
-  imgurl?: string;
-}
+import { Artist } from '@/lib/supabase';
 
 interface ArtistCardProps {
   artist: Artist;

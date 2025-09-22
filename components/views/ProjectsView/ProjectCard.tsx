@@ -1,11 +1,5 @@
 import { getGradientColors } from './utils';
-
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  imgurl?: string;
-}
+import { Project } from '@/lib/supabase';
 
 interface ProjectCardProps {
   project: Project;
