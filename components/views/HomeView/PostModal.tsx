@@ -89,6 +89,46 @@ export default function PostModal({ isOpen, onClose, mode, editPost, copyFromPos
         }
 
         setError(null);
+      } else if (mode === 'edit' && editPost) {
+        // Set pane 1
+        if (editPost.pane_1_text) {
+          setPane1Type('text');
+          setPane1Text(editPost.pane_1_text);
+          setPane1Image(null);
+          setPane1ImagePreview(null);
+        } else if (editPost.pane_1_imgurl) {
+          setPane1Type('image');
+          setPane1Text('');
+          setPane1Image(null);
+          setPane1ImagePreview(editPost.pane_1_imgurl);
+        } else {
+          // Empty pane 1
+          setPane1Type('text');
+          setPane1Text('');
+          setPane1Image(null);
+          setPane1ImagePreview(null);
+        }
+
+        // Set pane 2
+        if (editPost.pane_2_text) {
+          setPane2Type('text');
+          setPane2Text(editPost.pane_2_text);
+          setPane2Image(null);
+          setPane2ImagePreview(null);
+        } else if (editPost.pane_2_imgurl) {
+          setPane2Type('image');
+          setPane2Text('');
+          setPane2Image(null);
+          setPane2ImagePreview(editPost.pane_2_imgurl);
+        } else {
+          // Empty pane 2
+          setPane2Type('text');
+          setPane2Text('');
+          setPane2Image(null);
+          setPane2ImagePreview(null);
+        }
+
+        setError(null);
       }
     }
   }, [mode, editPost, copyFromPost, isOpen]);
