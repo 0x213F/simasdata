@@ -26,19 +26,19 @@ export default function NavigationButtons({
         {/* Navigation Buttons */}
         <div className="flex gap-4">
           <button
-            onClick={onNavigateNewer}
+            onClick={onNavigateOlder}
             disabled={cooldownActive}
             className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center cursor-pointer group"
-            title="Newer post (page left)"
+            title="Older post (page left)"
           >
             <ArrowLeft className="w-5 h-5 text-slate-500 group-hover:rotate-9 transition-transform duration-200" />
           </button>
 
           <button
-            onClick={onNavigateOlder}
+            onClick={onNavigateNewer}
             disabled={cooldownActive}
             className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center cursor-pointer group"
-            title="Older post (page right)"
+            title="Newer post (page right)"
           >
             <ArrowRight className="w-5 h-5 text-slate-500 group-hover:-rotate-9 transition-transform duration-200" />
           </button>
@@ -58,19 +58,19 @@ export default function NavigationButtons({
         <div className="w-80 flex items-center justify-end">
           <div className="flex gap-4">
             <button
-              onClick={onNavigateNewer}
+              onClick={onNavigateOlder}
               disabled={cooldownActive}
               className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center cursor-pointer group"
-              title="Newer post (page left)"
+              title="Older post (page left)"
             >
               <ArrowLeft className="w-5 h-5 text-slate-500 group-hover:rotate-9 transition-transform duration-200" />
             </button>
 
             <button
-              onClick={onNavigateOlder}
+              onClick={onNavigateNewer}
               disabled={cooldownActive}
               className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center cursor-pointer group"
-              title="Older post (page right)"
+              title="Newer post (page right)"
             >
               <ArrowRight className="w-5 h-5 text-slate-500 group-hover:-rotate-9 transition-transform duration-200" />
             </button>

@@ -88,8 +88,6 @@ export const updateBlogPost = async (
   pane2ImageUrl: string | null
 ): Promise<boolean> => {
   try {
-    console.log('Attempting to update blog post with UUID:', uuid)
-
     const { error } = await supabase
       .from('BlogPost')
       .update({
