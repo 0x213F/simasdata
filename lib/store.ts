@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { supabase, Artist, Project, BlogPost, updateBlogPost as updateBlogPostAPI, deleteBlogPost as deleteBlogPostAPI } from './supabase'
+import { supabase, Artist, Project, BlogPost, updateBlogPost as updateBlogPostAPI, deleteBlogPost as deleteBlogPostAPI, deleteProject as deleteProjectAPI, deleteArtist as deleteArtistAPI } from './supabase'
 import { User } from '@supabase/supabase-js'
 
 // Utility function to preload images
@@ -26,6 +26,7 @@ interface ArtistStore {
   fetchArtists: () => Promise<void>
   refetchArtists: () => Promise<void>
   createArtist: (name: string, description: string, imageUrl?: string) => Promise<boolean>
+  deleteArtist: (uuid: string) => Promise<boolean>
 }
 
 interface ProjectStore {
@@ -35,6 +36,7 @@ interface ProjectStore {
   fetchProjects: () => Promise<void>
   refetchProjects: () => Promise<void>
   createProject: (name: string, description: string, imageUrl?: string) => Promise<boolean>
+  deleteProject: (uuid: string) => Promise<boolean>
 }
 
 interface BlogPostStore {
@@ -184,6 +186,44 @@ export const useArtistStore = create<ArtistStore>((set, get) => ({
       })
       return false
     }
+  },
+
+  deleteArtist: async (uuid: string) => {
+    const state = get()
+    if (state.loading) {
+      return false
+    }
+
+    set({ loading: true, error: null })
+
+    try {
+      const success = await deleteArtistAPI(uuid)
+
+      if (!success) {
+        set({
+          loading: false,
+          error: 'Failed to delete artist'
+        })
+        return false
+      }
+
+      // Remove the artist from local state
+      const updatedArtists = state.artists.filter(artist => artist.uuid !== uuid)
+
+      set({
+        loading: false,
+        error: null,
+        artists: updatedArtists
+      })
+
+      return true
+    } catch (err: any) {
+      set({
+        loading: false,
+        error: err.message || 'Failed to delete artist'
+      })
+      return false
+    }
   }
 }))
 
@@ -307,6 +347,44 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       set({
         loading: false,
         error: err.message || 'Failed to create project'
+      })
+      return false
+    }
+  },
+
+  deleteProject: async (uuid: string) => {
+    const state = get()
+    if (state.loading) {
+      return false
+    }
+
+    set({ loading: true, error: null })
+
+    try {
+      const success = await deleteProjectAPI(uuid)
+
+      if (!success) {
+        set({
+          loading: false,
+          error: 'Failed to delete project'
+        })
+        return false
+      }
+
+      // Remove the project from local state
+      const updatedProjects = state.projects.filter(project => project.uuid !== uuid)
+
+      set({
+        loading: false,
+        error: null,
+        projects: updatedProjects
+      })
+
+      return true
+    } catch (err: any) {
+      set({
+        loading: false,
+        error: err.message || 'Failed to delete project'
       })
       return false
     }

@@ -8,6 +8,11 @@ interface FloatingActionButtonsProps {
   onEdit: () => void;
   onDelete: () => void;
   onAdmin: () => void;
+  disabledButtons?: {
+    copy?: boolean;
+    edit?: boolean;
+    delete?: boolean;
+  };
 }
 
 export default function FloatingActionButtons({
@@ -16,7 +21,8 @@ export default function FloatingActionButtons({
   onCopy,
   onEdit,
   onDelete,
-  onAdmin
+  onAdmin,
+  disabledButtons = {}
 }: FloatingActionButtonsProps) {
   const { user } = useAuthStore();
 
@@ -35,27 +41,42 @@ export default function FloatingActionButtons({
 
       {/* Delete Button */}
       <button
-        onClick={onDelete}
-        className="px-4 py-3 bg-red-400 text-white rounded-md shadow-sm hover:bg-red-500 hover:shadow-md flex items-center justify-center transition-all duration-200 cursor-pointer"
-        title="Delete current post"
+        onClick={disabledButtons.delete ? undefined : onDelete}
+        disabled={disabledButtons.delete}
+        className={`px-4 py-3 rounded-md shadow-sm flex items-center justify-center transition-all duration-200 ${
+          disabledButtons.delete
+            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            : 'bg-red-400 text-white hover:bg-red-500 hover:shadow-md cursor-pointer'
+        }`}
+        title={disabledButtons.delete ? "Delete (disabled)" : "Delete current post"}
       >
         <Trash2 className="w-4 h-4" />
       </button>
 
       {/* Edit Button */}
       <button
-        onClick={onEdit}
-        className="px-4 py-3 bg-amber-400 text-white rounded-md shadow-sm hover:bg-amber-500 hover:shadow-md flex items-center justify-center transition-all duration-200 cursor-pointer"
-        title="Edit current post"
+        onClick={disabledButtons.edit ? undefined : onEdit}
+        disabled={disabledButtons.edit}
+        className={`px-4 py-3 rounded-md shadow-sm flex items-center justify-center transition-all duration-200 ${
+          disabledButtons.edit
+            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            : 'bg-amber-400 text-white hover:bg-amber-500 hover:shadow-md cursor-pointer'
+        }`}
+        title={disabledButtons.edit ? "Edit (disabled)" : "Edit current post"}
       >
         <Edit className="w-4 h-4" />
       </button>
 
       {/* Copy Button */}
       <button
-        onClick={onCopy}
-        className="px-4 py-3 bg-green-400 text-white rounded-md shadow-sm hover:bg-green-500 hover:shadow-md flex items-center justify-center transition-all duration-200 cursor-pointer"
-        title="Copy current post to create new"
+        onClick={disabledButtons.copy ? undefined : onCopy}
+        disabled={disabledButtons.copy}
+        className={`px-4 py-3 rounded-md shadow-sm flex items-center justify-center transition-all duration-200 ${
+          disabledButtons.copy
+            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            : 'bg-green-400 text-white hover:bg-green-500 hover:shadow-md cursor-pointer'
+        }`}
+        title={disabledButtons.copy ? "Copy (disabled)" : "Copy current post to create new"}
       >
         <CopyPlus className="w-4 h-4" />
       </button>

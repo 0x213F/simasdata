@@ -48,7 +48,7 @@ export const uploadBlogImage = async (file: File): Promise<string | null> => {
 
 // Type definitions for our Artist table
 export interface Artist {
-  id: number
+  uuid: string
   name: string
   description: string
   imgurl?: string
@@ -59,7 +59,7 @@ export interface Artist {
 
 // Type definitions for our Project table
 export interface Project {
-  id: number
+  uuid: string
   name: string
   description: string
   imgurl?: string
@@ -125,6 +125,44 @@ export const deleteBlogPost = async (uuid: string): Promise<boolean> => {
     return true
   } catch (error) {
     console.error('Error deleting blog post:', error)
+    return false
+  }
+}
+
+export const deleteProject = async (uuid: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('Project')
+      .delete()
+      .eq('uuid', uuid)
+
+    if (error) {
+      console.error('Error deleting project:', error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error deleting project:', error)
+    return false
+  }
+}
+
+export const deleteArtist = async (uuid: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('Artist')
+      .delete()
+      .eq('uuid', uuid)
+
+    if (error) {
+      console.error('Error deleting artist:', error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error deleting artist:', error)
     return false
   }
 }

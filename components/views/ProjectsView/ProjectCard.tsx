@@ -8,7 +8,7 @@ interface ProjectCardProps {
 
 export default function ProjectCard({ project, index }: ProjectCardProps) {
   return (
-    <div key={`project-${project.id}-${index}`} className="card rounded-lg overflow-hidden">
+    <div key={`project-${project.uuid}-${index}`} className="card rounded-lg overflow-hidden">
       {project.imgurl ? (
         <div className="h-80 bg-cover bg-center bg-no-repeat"
              style={{ backgroundImage: `url(${project.imgurl})` }}>

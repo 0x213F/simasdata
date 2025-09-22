@@ -3,11 +3,11 @@
 import { useState } from 'react';
 import { useProjectStore } from '@/lib/store';
 import AddProjectModal from './AddProjectModal';
-import FloatingAddButton from './FloatingAddButton';
+import FloatingActionButtons from '../HomeView/FloatingActionButtons';
 import ProjectCard from './ProjectCard';
 
 export default function ProjectsView() {
-  const { projects, loading, error, refetchProjects } = useProjectStore()
+  const { projects, loading, error, refetchProjects, deleteProject } = useProjectStore()
   const [isModalOpen, setIsModalOpen] = useState(false)
 
 
@@ -41,7 +41,7 @@ export default function ProjectsView() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
                 {projects.map((project, index) => (
-                  <ProjectCard key={`project-${project.id}-${index}`} project={project} index={index} />
+                  <ProjectCard key={`project-${project.uuid}-${index}`} project={project} index={index} />
                 ))}
               </div>
             )}
@@ -49,8 +49,42 @@ export default function ProjectsView() {
         </div>
       </div>
 
-      {/* Floating Add Button */}
-      <FloatingAddButton onOpenModal={() => setIsModalOpen(true)} />
+      {/* Floating Action Buttons */}
+      <FloatingActionButtons
+        onAdd={() => setIsModalOpen(true)}
+        onCopy={() => {}} // Disabled - no action
+        onEdit={() => {}} // Disabled - no action
+        onDelete={async () => {
+          if (projects.length === 0) {
+            alert('No projects to delete');
+            return;
+          }
+
+          // Create a simple selection dialog
+          const projectNames = projects.map((p, i) => `${i + 1}. ${p.name}`).join('\n');
+          const selection = prompt(`Select a project to delete:\n\n${projectNames}\n\nEnter the number (1-${projects.length}):`);
+
+          if (selection) {
+            const index = parseInt(selection) - 1;
+            if (index >= 0 && index < projects.length) {
+              const project = projects[index];
+              if (window.confirm(`Are you sure you want to delete "${project.name}"? This action cannot be undone.`)) {
+                await deleteProject(project.uuid);
+              }
+            } else {
+              alert('Invalid selection');
+            }
+          }
+        }}
+        onAdmin={() => {
+          window.open('/admin-portal', '_blank');
+        }}
+        disabledButtons={{
+          copy: true,
+          edit: true,
+          delete: false
+        }}
+      />
 
       {/* Add Project Modal */}
       <AddProjectModal

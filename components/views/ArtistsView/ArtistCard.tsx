@@ -8,7 +8,7 @@ interface ArtistCardProps {
 
 export default function ArtistCard({ artist, index }: ArtistCardProps) {
   return (
-    <div key={`artist-${artist.id}-${index}`} className="card rounded-lg overflow-hidden">
+    <div key={`artist-${artist.uuid}-${index}`} className="card rounded-lg overflow-hidden">
       {artist.imgurl ? (
         <div className="h-80 bg-cover bg-center bg-no-repeat"
              style={{ backgroundImage: `url(${artist.imgurl})` }}>
