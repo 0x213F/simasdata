@@ -1,9 +1,10 @@
-import { Plus, Edit, Trash2, Settings } from 'lucide-react';
+import { Plus, Edit, Trash2, Settings, CopyPlus } from 'lucide-react';
 import { useAuthStore } from '@/lib/store';
 
 interface FloatingActionButtonsProps {
   isMobileLandscape?: boolean;
   onAdd: () => void;
+  onCopy: () => void;
   onEdit: () => void;
   onDelete: () => void;
   onAdmin: () => void;
@@ -12,6 +13,7 @@ interface FloatingActionButtonsProps {
 export default function FloatingActionButtons({
   isMobileLandscape,
   onAdd,
+  onCopy,
   onEdit,
   onDelete,
   onAdmin
@@ -47,6 +49,15 @@ export default function FloatingActionButtons({
         title="Edit current post"
       >
         <Edit className="w-4 h-4" />
+      </button>
+
+      {/* Copy Button */}
+      <button
+        onClick={onCopy}
+        className="px-4 py-3 bg-green-400 text-white rounded-md shadow-sm hover:bg-green-500 hover:shadow-md flex items-center justify-center transition-all duration-200 cursor-pointer"
+        title="Copy current post to create new"
+      >
+        <CopyPlus className="w-4 h-4" />
       </button>
 
       {/* Add Button */}

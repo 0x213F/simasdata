@@ -1,18 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, ArrowLeftRight } from 'lucide-react';
 import { useBlogPostStore } from '@/lib/store';
 import { uploadBlogImage, BlogPost } from '@/lib/supabase';
 
 interface PostModalProps {
   isOpen: boolean;
   onClose: () => void;
-  mode: 'create' | 'edit';
+  mode: 'create' | 'edit' | 'copy';
   editPost?: BlogPost | null;
+  copyFromPost?: BlogPost | null;
 }
 
-export default function PostModal({ isOpen, onClose, mode, editPost }: PostModalProps) {
+export default function PostModal({ isOpen, onClose, mode, editPost, copyFromPost }: PostModalProps) {
   // Pane content state
   const [pane1Type, setPane1Type] = useState<'text' | 'image'>('text');
   const [pane2Type, setPane2Type] = useState<'text' | 'image'>('text');
@@ -47,18 +48,19 @@ export default function PostModal({ isOpen, onClose, mode, editPost }: PostModal
       if (mode === 'create') {
         // Reset form for create mode
         resetForm();
-      } else if (mode === 'edit' && editPost) {
+      } else if (mode === 'copy' && copyFromPost) {
+        // Copy data from the source post for copy mode
         // Set pane 1
-        if (editPost.pane_1_text) {
+        if (copyFromPost.pane_1_text) {
           setPane1Type('text');
-          setPane1Text(editPost.pane_1_text);
+          setPane1Text(copyFromPost.pane_1_text);
           setPane1Image(null);
           setPane1ImagePreview(null);
-        } else if (editPost.pane_1_imgurl) {
+        } else if (copyFromPost.pane_1_imgurl) {
           setPane1Type('image');
           setPane1Text('');
           setPane1Image(null);
-          setPane1ImagePreview(editPost.pane_1_imgurl);
+          setPane1ImagePreview(copyFromPost.pane_1_imgurl);
         } else {
           // Empty pane 1
           setPane1Type('text');
@@ -68,16 +70,16 @@ export default function PostModal({ isOpen, onClose, mode, editPost }: PostModal
         }
 
         // Set pane 2
-        if (editPost.pane_2_text) {
+        if (copyFromPost.pane_2_text) {
           setPane2Type('text');
-          setPane2Text(editPost.pane_2_text);
+          setPane2Text(copyFromPost.pane_2_text);
           setPane2Image(null);
           setPane2ImagePreview(null);
-        } else if (editPost.pane_2_imgurl) {
+        } else if (copyFromPost.pane_2_imgurl) {
           setPane2Type('image');
           setPane2Text('');
           setPane2Image(null);
-          setPane2ImagePreview(editPost.pane_2_imgurl);
+          setPane2ImagePreview(copyFromPost.pane_2_imgurl);
         } else {
           // Empty pane 2
           setPane2Type('text');
@@ -89,7 +91,7 @@ export default function PostModal({ isOpen, onClose, mode, editPost }: PostModal
         setError(null);
       }
     }
-  }, [mode, editPost, isOpen]);
+  }, [mode, editPost, copyFromPost, isOpen]);
 
   // Handle image file selection
   const handleImageSelect = (pane: 1 | 2, file: File | null) => {
@@ -112,6 +114,29 @@ export default function PostModal({ isOpen, onClose, mode, editPost }: PostModal
         setPane2ImagePreview(null);
       }
     }
+  };
+
+  // Swap content between panes
+  const handleSwapPanes = () => {
+    // Swap types
+    const tempType = pane1Type;
+    setPane1Type(pane2Type);
+    setPane2Type(tempType);
+
+    // Swap text content
+    const tempText = pane1Text;
+    setPane1Text(pane2Text);
+    setPane2Text(tempText);
+
+    // Swap image files (new uploads)
+    const tempImage = pane1Image;
+    setPane1Image(pane2Image);
+    setPane2Image(tempImage);
+
+    // Swap image previews (existing URLs or new file previews)
+    const tempPreview = pane1ImagePreview;
+    setPane1ImagePreview(pane2ImagePreview);
+    setPane2ImagePreview(tempPreview);
   };
 
   // Validate form
@@ -154,7 +179,7 @@ export default function PostModal({ isOpen, onClose, mode, editPost }: PostModal
             setIsSubmitting(false);
             return;
           }
-        } else if (pane1ImagePreview && mode === 'edit') {
+        } else if (pane1ImagePreview && (mode === 'edit' || mode === 'copy')) {
           // Keep existing image
           pane1ImageUrl = pane1ImagePreview;
         }
@@ -170,7 +195,7 @@ export default function PostModal({ isOpen, onClose, mode, editPost }: PostModal
             setIsSubmitting(false);
             return;
           }
-        } else if (pane2ImagePreview && mode === 'edit') {
+        } else if (pane2ImagePreview && (mode === 'edit' || mode === 'copy')) {
           // Keep existing image
           pane2ImageUrl = pane2ImagePreview;
         }
@@ -178,7 +203,7 @@ export default function PostModal({ isOpen, onClose, mode, editPost }: PostModal
 
       // Create or update blog post
       let success = false;
-      if (mode === 'create') {
+      if (mode === 'create' || mode === 'copy') {
         success = await createBlogPost(
           pane1Type === 'text' ? pane1Text.trim() : null,
           pane2Type === 'text' ? pane2Text.trim() : null,
@@ -199,7 +224,7 @@ export default function PostModal({ isOpen, onClose, mode, editPost }: PostModal
         resetForm();
         onClose();
       } else {
-        setError(`Failed to ${mode} post. Please try again.`);
+        setError(`Failed to ${mode === 'copy' ? 'create' : mode} post. Please try again.`);
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
@@ -214,7 +239,7 @@ export default function PostModal({ isOpen, onClose, mode, editPost }: PostModal
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b border-slate-200">
           <h2 className="text-xl font-semibold text-slate-800">
-            {mode === 'create' ? 'Add New Post' : 'Edit Post'}
+            {mode === 'create' ? 'Add New Post' : mode === 'copy' ? 'Copy Post' : 'Edit Post'}
           </h2>
           <button
             onClick={onClose}
@@ -301,6 +326,20 @@ export default function PostModal({ isOpen, onClose, mode, editPost }: PostModal
                   )}
                 </div>
               )}
+            </div>
+
+            {/* Swap Button */}
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={handleSwapPanes}
+                disabled={isSubmitting}
+                className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-slate-800 hover:bg-slate-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Swap content between pages"
+              >
+                <ArrowLeftRight className="w-4 h-4" />
+                <span className="text-sm font-medium">Swap Pages</span>
+              </button>
             </div>
 
             {/* Page 2 */}
@@ -391,7 +430,7 @@ export default function PostModal({ isOpen, onClose, mode, editPost }: PostModal
               {isSubmitting && (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               )}
-              {isSubmitting ? `${mode === 'create' ? 'Creating' : 'Updating'}...` : `${mode === 'create' ? 'Create' : 'Update'} Post`}
+              {isSubmitting ? `${mode === 'create' || mode === 'copy' ? 'Creating' : 'Updating'}...` : `${mode === 'create' || mode === 'copy' ? 'Create' : 'Update'} Post`}
             </button>
           </div>
         </form>

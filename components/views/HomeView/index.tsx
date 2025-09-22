@@ -11,7 +11,7 @@ export default function HomeView({ isMobileLandscape }: { isMobileLandscape?: bo
   const { selectedPost, loading, error, navigateToNewerPost, navigateToOlderPost, deleteBlogPost } = useBlogPostStore();
   const [cooldownActive, setCooldownActive] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  const [modalMode, setModalMode] = useState<'create' | 'edit' | 'copy'>('create');
 
   // Cooldown handler
   const handleNavigationWithCooldown = (navigationFn: () => void) => {
@@ -22,23 +22,6 @@ export default function HomeView({ isMobileLandscape }: { isMobileLandscape?: bo
     setTimeout(() => setCooldownActive(false), 200);
   };
 
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowLeft') {
-        event.preventDefault();
-        handleNavigationWithCooldown(navigateToNewerPost);
-      } else if (event.key === 'ArrowRight') {
-        event.preventDefault();
-        handleNavigationWithCooldown(navigateToOlderPost);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [navigateToNewerPost, navigateToOlderPost, cooldownActive]);
 
   if (loading && !selectedPost) {
     return (
@@ -88,6 +71,12 @@ export default function HomeView({ isMobileLandscape }: { isMobileLandscape?: bo
           setModalMode('create');
           setIsModalOpen(true);
         }}
+        onCopy={() => {
+          if (selectedPost) {
+            setModalMode('copy');
+            setIsModalOpen(true);
+          }
+        }}
         onEdit={() => {
           if (selectedPost) {
             setModalMode('edit');
@@ -110,6 +99,7 @@ export default function HomeView({ isMobileLandscape }: { isMobileLandscape?: bo
         onClose={() => setIsModalOpen(false)}
         mode={modalMode}
         editPost={modalMode === 'edit' ? selectedPost : null}
+        copyFromPost={modalMode === 'copy' ? selectedPost : null}
       />
     </div>
   );
