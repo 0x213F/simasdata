@@ -1,0 +1,334 @@
+import { create } from 'zustand'
+import { supabase, BlogPost, updateBlogPost as updateBlogPostAPI, deleteBlogPost as deleteBlogPostAPI } from '../supabase'
+import { preloadImages } from './utils'
+
+interface BlogPostStore {
+  posts: BlogPost[]
+  selectedIndex: number
+  loading: boolean
+  error: string | null
+  selectedPost: BlogPost | null
+  fetchRecentPosts: () => Promise<void>
+  fetchMoreOlderPosts: () => Promise<void>
+  createBlogPost: (pane1Text: string | null, pane2Text: string | null, pane1ImageUrl?: string | null, pane2ImageUrl?: string | null) => Promise<boolean>
+  updateBlogPost: (uuid: string, pane1Text: string | null, pane2Text: string | null, pane1ImageUrl?: string | null, pane2ImageUrl?: string | null) => Promise<boolean>
+  deleteBlogPost: (uuid: string) => Promise<boolean>
+  navigateToNewerPost: () => void
+  navigateToOlderPost: () => void
+  setSelectedIndex: (index: number) => void
+}
+
+export const useBlogPostStore = create<BlogPostStore>((set, get) => ({
+  posts: [],
+  selectedIndex: 0,
+  loading: false,
+  error: null,
+  selectedPost: null,
+
+  fetchRecentPosts: async () => {
+    // Don't fetch if already loading
+    const state = get()
+    if (state.loading) {
+      return
+    }
+
+    set({ loading: true, error: null })
+
+    try {
+      const { data, error } = await supabase
+        .from('BlogPost')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5)
+
+      if (error) {
+        set({
+          loading: false,
+          error: error.message,
+          posts: [],
+          selectedIndex: 0,
+          selectedPost: null
+        })
+      } else {
+        const posts = data || []
+
+        // Preload images in the background
+        if (posts.length > 0) {
+          preloadImages(posts)
+        }
+
+        set({
+          loading: false,
+          error: null,
+          posts: posts,
+          selectedIndex: 0, // Always start with the newest post (index 0)
+          selectedPost: posts[0] || null
+        })
+      }
+    } catch (err: any) {
+      set({
+        loading: false,
+        error: err.message || 'Failed to fetch recent posts',
+        posts: [],
+        selectedIndex: 0,
+        selectedPost: null
+      })
+    }
+  },
+
+  fetchMoreOlderPosts: async () => {
+    const state = get()
+
+    // Don't fetch if already loading or no posts exist
+    if (state.loading || state.posts.length === 0) {
+      return
+    }
+
+    // Get the oldest post's created_at timestamp to fetch posts older than it
+    const oldestPost = state.posts[state.posts.length - 1]
+
+    set({ loading: true, error: null })
+
+    try {
+      const { data, error } = await supabase
+        .from('BlogPost')
+        .select('*')
+        .lt('created_at', oldestPost.created_at)
+        .order('created_at', { ascending: false })
+        .limit(10)
+
+      if (error) {
+        set({
+          loading: false,
+          error: error.message
+        })
+      } else {
+        // Append the new older posts to the existing cache
+        const newPosts = data || []
+        const updatedPosts = [...state.posts, ...newPosts]
+
+        // Preload images for the newly fetched posts
+        if (newPosts.length > 0) {
+          preloadImages(newPosts)
+        }
+
+        set({
+          loading: false,
+          error: null,
+          posts: updatedPosts,
+          selectedPost: updatedPosts[state.selectedIndex] || null
+        })
+      }
+    } catch (err: any) {
+      set({
+        loading: false,
+        error: err.message || 'Failed to fetch more posts'
+      })
+    }
+  },
+
+  createBlogPost: async (pane1Text: string | null, pane2Text: string | null, pane1ImageUrl?: string | null, pane2ImageUrl?: string | null) => {
+    const state = get()
+    if (state.loading) {
+      return false
+    }
+
+    set({ loading: true, error: null })
+
+    try {
+      // Prepare insert data - only include non-null values
+      const insertData: any = {}
+      if (pane1Text) insertData.pane_1_text = pane1Text
+      if (pane2Text) insertData.pane_2_text = pane2Text
+      if (pane1ImageUrl) insertData.pane_1_imgurl = pane1ImageUrl
+      if (pane2ImageUrl) insertData.pane_2_imgurl = pane2ImageUrl
+
+      const { data, error } = await supabase
+        .from('BlogPost')
+        .insert(insertData)
+        .select()
+        .single()
+
+      if (error) {
+        set({
+          loading: false,
+          error: error.message
+        })
+        return false
+      } else {
+        // Preload images for the new post
+        preloadImages([data])
+
+        // Add the new post to the beginning of the cache and update selectedPost
+        const updatedPosts = [data, ...state.posts]
+        set({
+          loading: false,
+          error: null,
+          posts: updatedPosts,
+          selectedIndex: 0, // Select the new post
+          selectedPost: data
+        })
+        return true
+      }
+    } catch (err: any) {
+      set({
+        loading: false,
+        error: err.message || 'Failed to create blog post'
+      })
+      return false
+    }
+  },
+
+  updateBlogPost: async (uuid: string, pane1Text: string | null, pane2Text: string | null, pane1ImageUrl?: string | null, pane2ImageUrl?: string | null) => {
+    const state = get()
+    if (state.loading) {
+      return false
+    }
+
+    set({ loading: true, error: null })
+
+    try {
+      const success = await updateBlogPostAPI(uuid, pane1Text, pane2Text, pane1ImageUrl || null, pane2ImageUrl || null)
+
+      if (!success) {
+        set({
+          loading: false,
+          error: 'Failed to update blog post'
+        })
+        return false
+      }
+
+      // Update the post in local state
+      const updatedPosts = state.posts.map(post =>
+        post.uuid === uuid
+          ? {
+              ...post,
+              pane_1_text: pane1Text || undefined,
+              pane_2_text: pane2Text || undefined,
+              pane_1_imgurl: pane1ImageUrl || undefined,
+              pane_2_imgurl: pane2ImageUrl || undefined,
+              updated_at: new Date().toISOString()
+            }
+          : post
+      )
+
+      const updatedSelectedPost = state.selectedPost?.uuid === uuid
+        ? updatedPosts[state.selectedIndex]
+        : state.selectedPost
+
+      set({
+        loading: false,
+        error: null,
+        posts: updatedPosts,
+        selectedPost: updatedSelectedPost
+      })
+
+      return true
+    } catch (err: any) {
+      set({
+        loading: false,
+        error: err.message || 'Failed to update blog post'
+      })
+      return false
+    }
+  },
+
+  deleteBlogPost: async (uuid: string) => {
+    const state = get()
+    if (state.loading) {
+      return false
+    }
+
+    set({ loading: true, error: null })
+
+    try {
+      const success = await deleteBlogPostAPI(uuid)
+
+      if (!success) {
+        set({
+          loading: false,
+          error: 'Failed to delete blog post'
+        })
+        return false
+      }
+
+      // Remove the post from local state
+      const updatedPosts = state.posts.filter(post => post.uuid !== uuid)
+
+      // Adjust selectedIndex if necessary
+      let newSelectedIndex = state.selectedIndex
+      let newSelectedPost = null
+
+      if (updatedPosts.length > 0) {
+        // If we deleted the selected post, select the next one
+        if (state.selectedPost?.uuid === uuid) {
+          newSelectedIndex = Math.min(state.selectedIndex, updatedPosts.length - 1)
+        }
+        // If we deleted a post before the selected one, adjust index
+        else if (state.posts.findIndex(p => p.uuid === uuid) < state.selectedIndex) {
+          newSelectedIndex = state.selectedIndex - 1
+        }
+
+        newSelectedPost = updatedPosts[newSelectedIndex] || null
+      } else {
+        newSelectedIndex = 0
+      }
+
+      set({
+        loading: false,
+        error: null,
+        posts: updatedPosts,
+        selectedIndex: newSelectedIndex,
+        selectedPost: newSelectedPost
+      })
+
+      return true
+    } catch (err: any) {
+      set({
+        loading: false,
+        error: err.message || 'Failed to delete blog post'
+      })
+      return false
+    }
+  },
+
+  navigateToNewerPost: () => {
+    const state = get()
+    // Newer posts have lower indices (index 0 = newest)
+    if (state.selectedIndex > 0) {
+      const newIndex = state.selectedIndex - 1
+      set({
+        selectedIndex: newIndex,
+        selectedPost: state.posts[newIndex] || null
+      })
+    }
+  },
+
+  navigateToOlderPost: () => {
+    const state = get()
+    // Older posts have higher indices
+    if (state.selectedIndex < state.posts.length - 1) {
+      const newIndex = state.selectedIndex + 1
+      set({
+        selectedIndex: newIndex,
+        selectedPost: state.posts[newIndex] || null
+      })
+
+      // Auto-fetch more posts if we're approaching the end
+      // When we're 5 posts away from the end, fetch 10 more older posts
+      if (state.posts.length - newIndex <= 6 && !state.loading) {
+        get().fetchMoreOlderPosts()
+      }
+    }
+  },
+
+  setSelectedIndex: (index: number) => {
+    const state = get()
+    if (index >= 0 && index < state.posts.length) {
+      set({
+        selectedIndex: index,
+        selectedPost: state.posts[index] || null
+      })
+    }
+  }
+}))

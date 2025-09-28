@@ -31,7 +31,7 @@ export default function NavigationButtons({
             className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center cursor-pointer group"
             title="Older post (page left)"
           >
-            <ArrowLeft className="w-5 h-5 text-slate-500 group-hover:rotate-9 transition-transform duration-200" />
+            <ArrowLeft className="w-5 h-5 text-slate-500 group-hover:rotate-[12deg] group-hover:scale-110 transition-transform duration-500" style={{ transitionTimingFunction: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)' }} />
           </button>
 
           <button
@@ -40,7 +40,7 @@ export default function NavigationButtons({
             className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center cursor-pointer group"
             title="Newer post (page right)"
           >
-            <ArrowRight className="w-5 h-5 text-slate-500 group-hover:-rotate-9 transition-transform duration-200" />
+            <ArrowRight className="w-5 h-5 text-slate-500 group-hover:-rotate-[12deg] group-hover:scale-110 transition-transform duration-500" style={{ transitionTimingFunction: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)' }} />
           </button>
         </div>
       </div>
@@ -63,7 +63,7 @@ export default function NavigationButtons({
               className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center cursor-pointer group"
               title="Older post (page left)"
             >
-              <ArrowLeft className="w-5 h-5 text-slate-500 group-hover:rotate-9 transition-transform duration-200" />
+              <ArrowLeft className="w-5 h-5 text-slate-500 group-hover:rotate-[12deg] group-hover:scale-110 transition-transform duration-500" style={{ transitionTimingFunction: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)' }} />
             </button>
 
             <button
@@ -72,7 +72,7 @@ export default function NavigationButtons({
               className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center cursor-pointer group"
               title="Newer post (page right)"
             >
-              <ArrowRight className="w-5 h-5 text-slate-500 group-hover:-rotate-9 transition-transform duration-200" />
+              <ArrowRight className="w-5 h-5 text-slate-500 group-hover:-rotate-[12deg] group-hover:scale-110 transition-transform duration-500" style={{ transitionTimingFunction: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)' }} />
             </button>
           </div>
         </div>

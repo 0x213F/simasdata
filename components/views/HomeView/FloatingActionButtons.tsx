@@ -1,5 +1,5 @@
 import { Plus, Edit, Trash2, Settings, CopyPlus } from 'lucide-react';
-import { useAuthStore } from '@/lib/store';
+import { useAuthStore } from '@/lib/stores/auth-store';
 
 interface FloatingActionButtonsProps {
   isMobileLandscape?: boolean;
@@ -29,7 +29,7 @@ export default function FloatingActionButtons({
   if (!user || isMobileLandscape) return null;
 
   return (
-    <div className="absolute bottom-6 right-6 flex flex-row gap-3 z-50 bg-green-100 p-3 rounded-lg shadow-sm">
+    <div className="fixed bottom-[105px] right-6 flex flex-row gap-3 z-50 bg-white p-3 rounded-lg shadow-sm border border-slate-200 transition-theme">
       {/* Admin Button */}
       <button
         onClick={onAdmin}

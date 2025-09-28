@@ -1,16 +1,32 @@
 'use client'
 
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import ThemeToggle from './ThemeToggle';
+import { THEME_CONFIG } from '@/lib/theme-config';
+
 interface HeaderProps {
   currentRoute: string;
   onNavigate: (routeId: string) => void;
 }
 
 export default function Header({ currentRoute, onNavigate }: HeaderProps) {
+  const pathname = usePathname();
   const navigation = [
     { id: 'home', label: 'Home', href: '/' },
     { id: 'projects', label: 'Projects', href: '/projects' },
     { id: 'artists', label: 'Artists', href: '/artists' }
   ];
+
+  // Determine active route based on pathname
+  const getActiveRoute = () => {
+    if (pathname === '/') return 'home';
+    if (pathname.startsWith('/projects')) return 'projects';
+    if (pathname.startsWith('/artists')) return 'artists';
+    return currentRoute;
+  };
+
+  const activeRoute = getActiveRoute();
 
   const headerStyle = `
     @media (max-width: 767px) {
@@ -24,6 +40,18 @@ export default function Header({ currentRoute, onNavigate }: HeaderProps) {
       .nav-list {
         gap: 32px !important;
       }
+      .theme-toggle-container {
+        display: none !important;
+      }
+    }
+    @media (min-width: 768px) {
+      .header-container {
+        justify-content: space-between !important;
+      }
+      .main-nav {
+        margin-left: auto;
+        margin-right: 20px;
+      }
     }
   `;
 
@@ -32,11 +60,10 @@ export default function Header({ currentRoute, onNavigate }: HeaderProps) {
       <style dangerouslySetInnerHTML={{ __html: headerStyle }} />
       <div
         id="header"
-        className="fixed top-0 left-0 w-full z-30 header-container bg-slate-50/40 backdrop-blur-md"
+        className="fixed top-0 left-0 w-full z-40 header-container bg-surface-secondary/95 dark:bg-surface-elevated/95 backdrop-blur-md transition-theme"
         style={{
           height: '80px',
           display: 'flex',
-          justifyContent: 'space-between',
           alignItems: 'center',
           padding: '0 60px'
         }}
@@ -44,7 +71,7 @@ export default function Header({ currentRoute, onNavigate }: HeaderProps) {
         {/* Logo - Main Logo */}
         <div className="main-logo">
         </div>
-      
+
       {/* Navigation - Main Nav */}
       <nav className="main-nav">
         <ul
@@ -60,11 +87,10 @@ export default function Header({ currentRoute, onNavigate }: HeaderProps) {
         >
           {navigation.map((item) => (
             <li key={item.id} style={{ margin: 0 }}>
-              <button
-                onClick={() => onNavigate(item.id)}
-                className={`underline-right-to-left ${currentRoute === item.id ? 'active' : ''}`}
+              <Link
+                href={item.href}
+                className={`underline-right-to-left ${activeRoute === item.id ? 'active' : ''} text-text-primary dark:text-text-primary hover:text-text-primary/70 dark:hover:text-text-primary/70 transition-theme`}
                 style={{
-                  color: 'var(--black)',
                   textDecoration: 'none',
                   fontSize: '16px',
                   fontWeight: '300',
@@ -72,19 +98,22 @@ export default function Header({ currentRoute, onNavigate }: HeaderProps) {
                   transition: 'var(--transition)',
                   padding: '10px 0',
                   position: 'relative',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer'
+                  display: 'block'
                 }}
               >
                 <span className={`nav-text ${item.id === 'home' ? 'lift-right' : 'lift-left'}`}>
                   {item.label}
                 </span>
-              </button>
+              </Link>
             </li>
           ))}
         </ul>
       </nav>
+
+      {/* Theme Toggle - Controlled by THEME_CONFIG.SHOW_THEME_TOGGLE */}
+      <div className="theme-toggle-container flex items-center">
+        {THEME_CONFIG.SHOW_THEME_TOGGLE && <ThemeToggle variant="minimal" />}
+      </div>
       </div>
     </>
   );

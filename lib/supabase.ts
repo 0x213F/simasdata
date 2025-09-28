@@ -79,6 +79,41 @@ export interface BlogPost {
   updated_at: string
 }
 
+// Type definitions for our unified ArtSummary table
+export interface ArtSummary {
+  uuid: string
+  text_1: string
+  text_2: string
+  img_url_1?: string
+  slug: string
+  is_active: boolean
+  type: 'artist' | 'project'
+  created_at: string
+  updated_at: string
+}
+
+// Type definitions for our ContactSubmission table
+export interface ContactSubmission {
+  uuid: string
+  text: string
+  created_at: string
+}
+
+// Helper getters for backward compatibility
+export const getArtSummaryName = (item: ArtSummary) => item.text_1
+export const getArtSummaryDescription = (item: ArtSummary) => item.text_2
+export const getArtSummaryImageUrl = (item: ArtSummary) => item.img_url_1
+
+// Helper function to generate URL-friendly slugs
+export const generateSlug = (text: string): string => {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with hyphens
+    .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
+}
+
 // Blog post API functions
 export const updateBlogPost = async (
   uuid: string,
@@ -129,6 +164,40 @@ export const deleteBlogPost = async (uuid: string): Promise<boolean> => {
   }
 }
 
+export const updateProject = async (
+  uuid: string,
+  name: string,
+  description: string,
+  imageUrl?: string | null
+): Promise<boolean> => {
+  try {
+    const updateData: any = {
+      name: name.trim(),
+      description: description.trim(),
+      updated_at: new Date().toISOString()
+    }
+
+    // Only include imgurl if provided
+    if (imageUrl !== undefined) {
+      updateData.imgurl = imageUrl
+    }
+
+    const { error } = await supabase
+      .from('Project')
+      .update(updateData)
+      .eq('uuid', uuid)
+
+    if (error) {
+      console.error('Error updating project:', error)
+      return false
+    }
+    return true
+  } catch (error) {
+    console.error('Error updating project:', error)
+    return false
+  }
+}
+
 export const deleteProject = async (uuid: string): Promise<boolean> => {
   try {
     const { error } = await supabase
@@ -148,6 +217,40 @@ export const deleteProject = async (uuid: string): Promise<boolean> => {
   }
 }
 
+export const updateArtist = async (
+  uuid: string,
+  name: string,
+  description: string,
+  imageUrl?: string | null
+): Promise<boolean> => {
+  try {
+    const updateData: any = {
+      name: name.trim(),
+      description: description.trim(),
+      updated_at: new Date().toISOString()
+    }
+
+    // Only include imgurl if provided
+    if (imageUrl !== undefined) {
+      updateData.imgurl = imageUrl
+    }
+
+    const { error } = await supabase
+      .from('Artist')
+      .update(updateData)
+      .eq('uuid', uuid)
+
+    if (error) {
+      console.error('Error updating artist:', error)
+      return false
+    }
+    return true
+  } catch (error) {
+    console.error('Error updating artist:', error)
+    return false
+  }
+}
+
 export const deleteArtist = async (uuid: string): Promise<boolean> => {
   try {
     const { error } = await supabase
@@ -163,6 +266,89 @@ export const deleteArtist = async (uuid: string): Promise<boolean> => {
     return true
   } catch (error) {
     console.error('Error deleting artist:', error)
+    return false
+  }
+}
+
+// ArtSummary API functions for unified artist/project management
+export const updateArtSummary = async (
+  uuid: string,
+  name: string,
+  description: string,
+  type: 'artist' | 'project',
+  imageUrl?: string | null,
+  slug?: string | null
+): Promise<boolean> => {
+  try {
+    const updateData: any = {
+      text_1: name.trim(),
+      text_2: description.trim(),
+      type,
+      updated_at: new Date().toISOString()
+    }
+
+    // Only include img_url_1 if provided
+    if (imageUrl !== undefined) {
+      updateData.img_url_1 = imageUrl
+    }
+
+    // Only include slug if provided, otherwise generate from name
+    if (slug !== undefined) {
+      updateData.slug = slug || generateSlug(name)
+    }
+
+    const { error } = await supabase
+      .from('ArtSummary')
+      .update(updateData)
+      .eq('uuid', uuid)
+
+    if (error) {
+      console.error('Error updating art summary:', error)
+      return false
+    }
+    return true
+  } catch (error) {
+    console.error('Error updating art summary:', error)
+    return false
+  }
+}
+
+export const deleteArtSummary = async (uuid: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('ArtSummary')
+      .delete()
+      .eq('uuid', uuid)
+
+    if (error) {
+      console.error('Error deleting art summary:', error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error deleting art summary:', error)
+    return false
+  }
+}
+
+// ContactSubmission API functions
+export const createContactSubmission = async (text: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('ContactSubmission')
+      .insert({
+        text: text.trim()
+      })
+
+    if (error) {
+      console.error('Error creating contact submission:', error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error creating contact submission:', error)
     return false
   }
 }

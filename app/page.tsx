@@ -4,7 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import MainWebsite from '@/components/MainWebsite';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { useArtistStore, useProjectStore, useAuthStore, useBlogPostStore } from '@/lib/store';
+import { useArtistStore } from '@/lib/stores/artist-store';
+import { useProjectStore } from '@/lib/stores/project-store';
+import { useAuthStore } from '@/lib/stores/auth-store';
+import { useBlogPostStore } from '@/lib/stores/blog-post-store';
+import { useLoading } from '@/lib/LoadingContext';
 
 // Splash overlay component
 function SplashOverlay() {
@@ -45,9 +49,9 @@ function SplashOverlay() {
         transitionDuration: `${FADE_DURATION}ms`
       }}
     >
-      {/* White background that fades out */}
+      {/* Background that fades out */}
       <div
-        className={`absolute inset-0 bg-white transition-opacity ${
+        className={`absolute inset-0 bg-surface transition-opacity ${
           isFading ? 'opacity-0' : 'opacity-100'
         }`}
         style={{
@@ -78,6 +82,7 @@ function SplashOverlay() {
 export default function Home() {
   const [currentRoute, setCurrentRoute] = useState('home');
   const [isMobileLandscape, setIsMobileLandscape] = useState(false);
+  const { isInitialLoad } = useLoading();
   const fetchArtists = useArtistStore(state => state.fetchArtists);
   const fetchProjects = useProjectStore(state => state.fetchProjects);
   const checkAuth = useAuthStore(state => state.checkAuth);
@@ -122,7 +127,7 @@ export default function Home() {
   return (
     <>
       {/* Main website - always rendered */}
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 transition-all duration-300">
         {/* Fixed Header - Hidden in mobile landscape */}
         {!isMobileLandscape && (
           <Header currentRoute={currentRoute} onNavigate={handleNavigation} />
@@ -139,8 +144,8 @@ export default function Home() {
         />
       </div>
 
-      {/* Splash overlay - fades out to reveal website underneath */}
-      <SplashOverlay />
+      {/* Splash overlay - only shows on initial load */}
+      {isInitialLoad && <SplashOverlay />}
     </>
   );
 }
