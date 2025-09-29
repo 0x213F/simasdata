@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { supabase, ArtSummary, updateArtSummary as updateArtSummaryAPI, deleteArtSummary as deleteArtSummaryAPI, generateSlug } from '../supabase'
+import { supabase, ArtSummary, ArtSummaryWithDetails, updateArtSummary as updateArtSummaryAPI, deleteArtSummary as deleteArtSummaryAPI, generateSlug } from '../supabase'
 import { createTTLStorage, TTL_30_MINUTES } from './utils'
 
 // Unified ArtSummaryStore for both artists and projects
@@ -12,18 +12,14 @@ interface ArtSummaryStore {
   setHasHydrated: (hasHydrated: boolean) => void
   // Main data fetching
   fetchArtSummaries: () => Promise<void>
-  refetchArtSummaries: () => Promise<void>
+  // Single item fetching by slug
+  fetchArtSummaryBySlug: (slug: string, type: 'artist' | 'project') => Promise<ArtSummary | null>
+  // Single item fetching with details by slug
+  fetchArtSummaryWithDetailsBySlug: (slug: string, type: 'artist' | 'project') => Promise<ArtSummaryWithDetails | null>
   // CRUD operations
   createArtSummary: (name: string, description: string, type: 'artist' | 'project', imageUrl?: string, slug?: string) => Promise<boolean>
   updateArtSummary: (uuid: string, name: string, description: string, type: 'artist' | 'project', imageUrl?: string, slug?: string) => Promise<boolean>
   deleteArtSummary: (uuid: string) => Promise<boolean>
-  // Legacy compatibility methods
-  createArtist: (name: string, description: string, imageUrl?: string) => Promise<boolean>
-  createProject: (name: string, description: string, imageUrl?: string) => Promise<boolean>
-  updateArtist: (uuid: string, name: string, description: string, imageUrl?: string) => Promise<boolean>
-  updateProject: (uuid: string, name: string, description: string, imageUrl?: string) => Promise<boolean>
-  deleteArtist: (uuid: string) => Promise<boolean>
-  deleteProject: (uuid: string) => Promise<boolean>
 }
 
 // New unified ArtSummaryStore with automatic caching
@@ -75,36 +71,70 @@ export const useArtSummaryStore = create<ArtSummaryStore>()(
         }
       },
 
-      refetchArtSummaries: async () => {
-        // Force refetch by clearing current data
-        set({ artSummaries: [], loading: true, error: null })
-
+      fetchArtSummaryBySlug: async (slug: string, type: 'artist' | 'project') => {
         try {
           const { data, error } = await supabase
             .from('ArtSummary')
             .select('*')
+            .eq('slug', slug)
+            .eq('type', type)
             .eq('is_active', true)
-            .order('text_1', { ascending: true })
+            .single()
 
           if (error) {
-            set({
-              loading: false,
-              error: error.message,
-              artSummaries: []
-            })
-          } else {
-            set({
-              loading: false,
-              error: null,
-              artSummaries: data || []
-            })
+            console.error(`Failed to fetch ${type} by slug:`, error)
+            return null
+          }
+
+          return data
+        } catch (err: any) {
+          console.error(`Failed to fetch ${type} by slug:`, err)
+          return null
+        }
+      },
+
+      fetchArtSummaryWithDetailsBySlug: async (slug: string, type: 'artist' | 'project') => {
+        try {
+          // Single query with join to fetch ArtSummary and related ArtDetails
+          const { data, error } = await supabase
+            .from('ArtSummary')
+            .select(`
+              *,
+              ArtDetail(*)
+            `)
+            .eq('slug', slug)
+            .eq('type', type)
+            .eq('is_active', true)
+            .single()
+
+          if (error) {
+            console.error(`Failed to fetch ${type} with details by slug:`, error)
+            return null
+          }
+
+          if (!data) {
+            console.log(`No ${type} found with slug: ${slug}`)
+            return null
+          }
+
+
+          // Transform the data to match our expected structure
+          const artDetails = data.ArtDetail || []
+
+          // Sort by index to ensure correct order - creating a new array and ensuring proper number comparison
+          const sortedArtDetails = [...artDetails].sort((a, b) => {
+            const indexA = Number(a.index)
+            const indexB = Number(b.index)
+            return indexA - indexB
+          })
+
+          return {
+            ...data,
+            artDetails: sortedArtDetails
           }
         } catch (err: any) {
-          set({
-            loading: false,
-            error: err.message || 'Failed to fetch art summaries',
-            artSummaries: []
-          })
+          console.error(`Failed to fetch ${type} with details by slug:`, err)
+          return null
         }
       },
 
@@ -246,31 +276,6 @@ export const useArtSummaryStore = create<ArtSummaryStore>()(
           })
           return false
         }
-      },
-
-      // Legacy compatibility methods
-      createArtist: async (name: string, description: string, imageUrl?: string) => {
-        return get().createArtSummary(name, description, 'artist', imageUrl)
-      },
-
-      createProject: async (name: string, description: string, imageUrl?: string) => {
-        return get().createArtSummary(name, description, 'project', imageUrl)
-      },
-
-      updateArtist: async (uuid: string, name: string, description: string, imageUrl?: string) => {
-        return get().updateArtSummary(uuid, name, description, 'artist', imageUrl)
-      },
-
-      updateProject: async (uuid: string, name: string, description: string, imageUrl?: string) => {
-        return get().updateArtSummary(uuid, name, description, 'project', imageUrl)
-      },
-
-      deleteArtist: async (uuid: string) => {
-        return get().deleteArtSummary(uuid)
-      },
-
-      deleteProject: async (uuid: string) => {
-        return get().deleteArtSummary(uuid)
       }
     }),
     {

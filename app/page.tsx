@@ -4,10 +4,9 @@ import { useState, useEffect, useRef } from 'react';
 import MainWebsite from '@/components/MainWebsite';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { useArtistStore } from '@/lib/stores/artist-store';
-import { useProjectStore } from '@/lib/stores/project-store';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useBlogPostStore } from '@/lib/stores/blog-post-store';
+import { useArtSummaryStore } from '@/lib/stores/art-summary-store';
 import { useLoading } from '@/lib/LoadingContext';
 
 // Splash overlay component
@@ -83,10 +82,9 @@ export default function Home() {
   const [currentRoute, setCurrentRoute] = useState('home');
   const [isMobileLandscape, setIsMobileLandscape] = useState(false);
   const { isInitialLoad } = useLoading();
-  const fetchArtists = useArtistStore(state => state.fetchArtists);
-  const fetchProjects = useProjectStore(state => state.fetchProjects);
   const checkAuth = useAuthStore(state => state.checkAuth);
   const fetchRecentPosts = useBlogPostStore(state => state.fetchRecentPosts);
+  const fetchArtSummaries = useArtSummaryStore(state => state.fetchArtSummaries);
 
   // Check if device is mobile in landscape mode
   useEffect(() => {
@@ -112,13 +110,12 @@ export default function Home() {
     };
   }, []);
 
-  // Fetch artists, projects, blog posts, and check auth on page load
+  // Fetch blog posts, art summaries, and check auth on page load
   useEffect(() => {
-    fetchArtists();
-    fetchProjects();
     fetchRecentPosts();
+    fetchArtSummaries();
     checkAuth();
-  }, [fetchArtists, fetchProjects, fetchRecentPosts, checkAuth]);
+  }, [fetchRecentPosts, fetchArtSummaries, checkAuth]);
 
   const handleNavigation = (routeId: string) => {
     setCurrentRoute(routeId);

@@ -2,14 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Header from '@/components/Header';
+import ScrollHeader from '@/components/ScrollHeader';
 import Footer from '@/components/Footer';
-import { supabase, ArtSummary } from '@/lib/supabase';
+import { ArtSummary } from '@/lib/supabase';
 import ArtistDetail from '@/components/views/ArtistsView/ArtistDetail';
-import { useArtistStore } from '@/lib/stores/artist-store';
-import { useProjectStore } from '@/lib/stores/project-store';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useBlogPostStore } from '@/lib/stores/blog-post-store';
+import { useArtSummaryStore } from '@/lib/stores/art-summary-store';
 
 export default function ArtistDetailPage() {
   const params = useParams();
@@ -19,10 +18,9 @@ export default function ArtistDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchArtists = useArtistStore(state => state.fetchArtists);
-  const fetchProjects = useProjectStore(state => state.fetchProjects);
   const checkAuth = useAuthStore(state => state.checkAuth);
   const fetchRecentPosts = useBlogPostStore(state => state.fetchRecentPosts);
+  const fetchArtSummaryBySlug = useArtSummaryStore(state => state.fetchArtSummaryBySlug);
 
   const handleNavigate = (route: string) => {
     if (route === 'home') {
@@ -36,14 +34,9 @@ export default function ArtistDetailPage() {
 
   // Fetch data on page load
   useEffect(() => {
-    // Mark site as visited to prevent splash screen on homepage return
-    sessionStorage.setItem('simasdata-visited', 'true');
-
-    fetchArtists();
-    fetchProjects();
     fetchRecentPosts();
     checkAuth();
-  }, [fetchArtists, fetchProjects, fetchRecentPosts, checkAuth]);
+  }, [fetchRecentPosts, checkAuth]);
 
   // Fetch artist by slug
   useEffect(() => {
@@ -54,15 +47,9 @@ export default function ArtistDetailPage() {
       setError(null);
 
       try {
-        const { data, error } = await supabase
-          .from('ArtSummary')
-          .select('*')
-          .eq('slug', slug)
-          .eq('type', 'artist')
-          .eq('is_active', true)
-          .single();
+        const data = await fetchArtSummaryBySlug(slug, 'artist');
 
-        if (error) {
+        if (!data) {
           setError('Artist not found');
           setArtist(null);
         } else {
@@ -77,13 +64,13 @@ export default function ArtistDetailPage() {
     };
 
     fetchArtist();
-  }, [slug]);
+  }, [slug, fetchArtSummaryBySlug]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 transition-all duration-300">
-        <Header currentRoute="artists" onNavigate={handleNavigate} />
-        <main className="min-h-screen overflow-auto pt-20 pb-20">
+        <ScrollHeader backText="Back to Artists" backHref="/artists" />
+        <main className="min-h-screen overflow-auto">
           <div className="flex items-center justify-center h-full">
             <div className="text-text-secondary text-lg">Loading artist...</div>
           </div>
@@ -96,8 +83,8 @@ export default function ArtistDetailPage() {
   if (error || !artist) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 transition-all duration-300">
-        <Header currentRoute="artists" onNavigate={handleNavigate} />
-        <main className="min-h-screen overflow-auto pt-20 pb-20">
+        <ScrollHeader backText="Back to Artists" backHref="/artists" />
+        <main className="min-h-screen overflow-auto">
           <div className="flex items-center justify-center h-full">
             <div className="text-red-600 text-lg">{error || 'Artist not found'}</div>
           </div>
@@ -109,8 +96,8 @@ export default function ArtistDetailPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 transition-all duration-300">
-      <Header currentRoute="artists" onNavigate={() => {}} />
-      <main className="min-h-screen overflow-auto pt-20 pb-20">
+      <ScrollHeader backText="Back to Artists" backHref="/artists" />
+      <main className="min-h-screen overflow-auto">
         <div className="transition-opacity duration-300">
           <ArtistDetail artist={artist} />
         </div>

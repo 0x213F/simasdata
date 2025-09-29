@@ -92,6 +92,25 @@ export interface ArtSummary {
   updated_at: string
 }
 
+// Type definitions for our ArtDetail table
+export interface ArtDetail {
+  uuid: string
+  text_1: string
+  text_2: string
+  text_3?: string
+  img_url_1?: string
+  img_url_2?: string
+  type: 'hero-welcome' | 'hero-goodbye' | 'taster-img-left' | 'taster-img-right' | 'img-highlight'
+  index: number
+  art_summary_uuid: string
+  created_at: string
+}
+
+// Extended ArtSummary with related ArtDetail records
+export interface ArtSummaryWithDetails extends ArtSummary {
+  artDetails: ArtDetail[]
+}
+
 // Type definitions for our ContactSubmission table
 export interface ContactSubmission {
   uuid: string
@@ -349,6 +368,116 @@ export const createContactSubmission = async (text: string): Promise<boolean> =>
     return true
   } catch (error) {
     console.error('Error creating contact submission:', error)
+    return false
+  }
+}
+
+// ArtDetail API functions
+export const createArtDetail = async (
+  artSummaryUuid: string,
+  type: 'hero-welcome' | 'hero-goodbye' | 'taster-img-left' | 'taster-img-right' | 'img-highlight',
+  text1: string,
+  text2: string,
+  text3?: string,
+  imgUrl1?: string,
+  imgUrl2?: string,
+  index?: number
+): Promise<boolean> => {
+  try {
+    // Get the next index if not provided
+    let finalIndex = index
+    if (finalIndex === undefined) {
+      const { data: existingDetails } = await supabase
+        .from('ArtDetail')
+        .select('index')
+        .eq('art_summary_uuid', artSummaryUuid)
+        .order('index', { ascending: false })
+        .limit(1)
+
+      finalIndex = existingDetails && existingDetails.length > 0 ? existingDetails[0].index + 1 : 0
+    }
+
+    const insertData: any = {
+      art_summary_uuid: artSummaryUuid,
+      type,
+      text_1: text1.trim(),
+      text_2: text2.trim(),
+      index: finalIndex
+    }
+
+    if (text3) insertData.text_3 = text3.trim()
+    if (imgUrl1) insertData.img_url_1 = imgUrl1
+    if (imgUrl2) insertData.img_url_2 = imgUrl2
+
+    const { error } = await supabase
+      .from('ArtDetail')
+      .insert(insertData)
+
+    if (error) {
+      console.error('Error creating art detail:', error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error creating art detail:', error)
+    return false
+  }
+}
+
+export const updateArtDetail = async (
+  uuid: string,
+  type: 'hero-welcome' | 'hero-goodbye' | 'taster-img-left' | 'taster-img-right' | 'img-highlight',
+  text1: string,
+  text2: string,
+  text3?: string,
+  imgUrl1?: string,
+  imgUrl2?: string
+): Promise<boolean> => {
+  try {
+    const updateData: any = {
+      type,
+      text_1: text1.trim(),
+      text_2: text2.trim()
+    }
+
+    // Handle optional fields
+    if (text3 !== undefined) updateData.text_3 = text3?.trim() || null
+    if (imgUrl1 !== undefined) updateData.img_url_1 = imgUrl1 || null
+    if (imgUrl2 !== undefined) updateData.img_url_2 = imgUrl2 || null
+
+    const { error } = await supabase
+      .from('ArtDetail')
+      .update(updateData)
+      .eq('uuid', uuid)
+
+    if (error) {
+      console.error('Error updating art detail:', error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error updating art detail:', error)
+    return false
+  }
+}
+
+export const deleteArtDetail = async (uuid: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('ArtDetail')
+      .delete()
+      .eq('uuid', uuid)
+
+    if (error) {
+      console.error('Error deleting art detail:', error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error deleting art detail:', error)
     return false
   }
 }

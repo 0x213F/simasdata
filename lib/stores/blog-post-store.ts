@@ -1,6 +1,7 @@
 import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import { supabase, BlogPost, updateBlogPost as updateBlogPostAPI, deleteBlogPost as deleteBlogPostAPI } from '../supabase'
-import { preloadImages } from './utils'
+import { preloadImages, createTTLStorage, TTL_30_MINUTES } from './utils'
 
 interface BlogPostStore {
   posts: BlogPost[]
@@ -8,6 +9,8 @@ interface BlogPostStore {
   loading: boolean
   error: string | null
   selectedPost: BlogPost | null
+  hasHydrated: boolean
+  setHasHydrated: (hasHydrated: boolean) => void
   fetchRecentPosts: () => Promise<void>
   fetchMoreOlderPosts: () => Promise<void>
   createBlogPost: (pane1Text: string | null, pane2Text: string | null, pane1ImageUrl?: string | null, pane2ImageUrl?: string | null) => Promise<boolean>
@@ -18,19 +21,24 @@ interface BlogPostStore {
   setSelectedIndex: (index: number) => void
 }
 
-export const useBlogPostStore = create<BlogPostStore>((set, get) => ({
-  posts: [],
-  selectedIndex: 0,
-  loading: false,
-  error: null,
-  selectedPost: null,
+export const useBlogPostStore = create<BlogPostStore>()(
+  persist(
+    (set, get) => ({
+      posts: [],
+      selectedIndex: 0,
+      loading: false,
+      error: null,
+      selectedPost: null,
+      hasHydrated: false,
+      setHasHydrated: (hasHydrated) => set({ hasHydrated }),
 
-  fetchRecentPosts: async () => {
-    // Don't fetch if already loading
-    const state = get()
-    if (state.loading) {
-      return
-    }
+      fetchRecentPosts: async () => {
+        const state = get()
+
+        // Don't fetch if already loading or if we already have data
+        if (state.loading || (state.posts.length > 0 && !state.error)) {
+          return
+        }
 
     set({ loading: true, error: null })
 
@@ -331,4 +339,14 @@ export const useBlogPostStore = create<BlogPostStore>((set, get) => ({
       })
     }
   }
-}))
+    }),
+    {
+      name: 'blog-post-storage',
+      storage: createJSONStorage(() => createTTLStorage(TTL_30_MINUTES)),
+      partialize: (state) => ({ posts: state.posts, selectedIndex: state.selectedIndex, selectedPost: state.selectedPost }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true)
+      }
+    }
+  )
+)

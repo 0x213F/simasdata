@@ -1,24 +1,23 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useArtSummaryStore } from '@/lib/stores/art-summary-store';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { getArtSummaryName } from '@/lib/supabase';
 import ArtSummaryModal from '../../shared/ArtSummaryModal';
-import FloatingActionButtons from '../HomeView/FloatingActionButtons';
+import FloatingActionButtons from '@/components/shared/FloatingActionButtons';
 import ProjectCard from './ProjectCard';
-import ProjectDetail from './ProjectDetail';
-import DetailViewTransition from '../../DetailViewTransition';
 
 export default function ProjectsView() {
-  const { loading, error, fetchArtSummaries, refetchArtSummaries, deleteProject, hasHydrated } = useArtSummaryStore()
+  const router = useRouter()
+  const { loading, error, fetchArtSummaries, deleteArtSummary, hasHydrated } = useArtSummaryStore()
   const artSummaries = useArtSummaryStore(state => state.artSummaries)
   const projects = artSummaries.filter(item => item.type === 'project')
   const { user } = useAuthStore()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
   const [modalMode, setModalMode] = useState<'create' | 'edit' | 'clone'>('create')
-  const [showDetailView, setShowDetailView] = useState(false)
 
   const selectedProject = selectedProjectId ? projects.find(p => p.uuid === selectedProjectId) : null
 
@@ -34,44 +33,28 @@ export default function ProjectsView() {
   }, [projects])
 
   const handleProjectClick = (projectId: string) => {
+    const project = projects.find(p => p.uuid === projectId)
+    if (!project) return
+
     if (user) {
       // User is logged in
       if (selectedProjectId === projectId) {
-        // Project is already selected - take them to detail view
-        setShowDetailView(true)
+        // Project is already selected - navigate to detail view
+        router.push(`/projects/${project.slug}`)
       } else {
         // Project is not selected - make it selected and return early
         setSelectedProjectId(projectId)
         return
       }
     } else {
-      // User is not logged in - take them immediately to detail view
-      setSelectedProjectId(projectId)
-      setShowDetailView(true)
+      // User is not logged in - navigate immediately to detail view
+      router.push(`/projects/${project.slug}`)
     }
   }
 
-  const handleCloseDetailView = () => {
-    setShowDetailView(false)
-    // Keep the selected project for logged-in users, clear for non-logged-in users
-    if (!user) {
-      setSelectedProjectId(null)
-    }
-  }
-
-  // Wrap the entire component with transition
   return (
     <>
-      <DetailViewTransition isActive={showDetailView}>
-        {showDetailView && selectedProject && (
-          <ProjectDetail project={selectedProject} onClose={handleCloseDetailView} />
-        )}
-      </DetailViewTransition>
-
-      {/* Main projects view - hidden when detail view is active */}
-      {!showDetailView && (
-        <>
-          <div className="min-h-screen bg-surface transition-theme">
+      <div className="min-h-screen bg-surface transition-theme">
 
         {/* Projects Grid */}
         <div className="px-8 pb-20">
@@ -83,18 +66,6 @@ export default function ProjectsView() {
             ) : !hasHydrated && projects.length === 0 ? (
               // Only show empty state during hydration if we have no data
               <div></div>
-            ) : error ? (
-              <div className="text-center py-20">
-                <div className="text-red-600 mb-4">
-                  Error loading projects: {error}
-                </div>
-                <button
-                  onClick={refetchArtSummaries}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Try Again
-                </button>
-              </div>
             ) : projects.length === 0 ? (
               // Show nothing when there are no projects - completely empty
               <div></div>
@@ -140,7 +111,7 @@ export default function ProjectsView() {
           }
 
           if (window.confirm(`Are you sure you want to delete "${getArtSummaryName(selectedProject)}"? This action cannot be undone.`)) {
-            await deleteProject(selectedProject.uuid);
+            await deleteArtSummary(selectedProject.uuid);
             setSelectedProjectId(null); // Clear selection after deletion
           }
         }}
@@ -160,14 +131,11 @@ export default function ProjectsView() {
         onClose={() => {
           setIsModalOpen(false)
           setSelectedProjectId(null) // Clear selection when modal closes
-          setShowDetailView(false) // Also close detail view
         }}
         mode={modalMode}
         type="project"
         item={selectedProject}
       />
-        </>
-      )}
     </>
   );
 }

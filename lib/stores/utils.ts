@@ -21,6 +21,11 @@ export const preloadImages = (posts: BlogPost[]) => {
 // Custom storage with TTL for Zustand persist
 export const createTTLStorage = (ttlMs: number) => ({
   getItem: (name: string): string | null => {
+    // Check if we're on the client side
+    if (typeof window === 'undefined') {
+      return null
+    }
+
     try {
       const item = localStorage.getItem(name)
       if (!item) return null
@@ -40,6 +45,11 @@ export const createTTLStorage = (ttlMs: number) => ({
     }
   },
   setItem: (name: string, value: string): void => {
+    // Check if we're on the client side
+    if (typeof window === 'undefined') {
+      return
+    }
+
     try {
       const parsed = JSON.parse(value)
       const withTimestamp = {
@@ -52,7 +62,16 @@ export const createTTLStorage = (ttlMs: number) => ({
     }
   },
   removeItem: (name: string): void => {
-    localStorage.removeItem(name)
+    // Check if we're on the client side
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    try {
+      localStorage.removeItem(name)
+    } catch (error) {
+      console.warn('Failed to remove from TTL storage:', error)
+    }
   }
 })
 

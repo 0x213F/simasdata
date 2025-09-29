@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react';
 import { useBlogPostStore } from '@/lib/stores/blog-post-store';
 import BookPages from './BookPages';
 import PostModal from './PostModal';
-import FloatingActionButtons from './FloatingActionButtons';
+import FloatingActionButtons from '@/components/shared/FloatingActionButtons';
 import NavigationButtons from './NavigationButtons';
 
 export default function HomeView({ isMobileLandscape }: { isMobileLandscape?: boolean }) {
-  const { selectedPost, loading, error, navigateToNewerPost, navigateToOlderPost, deleteBlogPost } = useBlogPostStore();
+  const { selectedPost, loading, error, hasHydrated, navigateToNewerPost, navigateToOlderPost, deleteBlogPost } = useBlogPostStore();
   const [cooldownActive, setCooldownActive] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit' | 'copy'>('create');
@@ -23,7 +23,8 @@ export default function HomeView({ isMobileLandscape }: { isMobileLandscape?: bo
   };
 
 
-  if (loading && !selectedPost) {
+  // Show loading state while hydrating or fetching
+  if (!hasHydrated || (loading && !selectedPost)) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-surface transition-theme">
         <div className="text-text-secondary dark:text-text-secondary text-lg">Loading recent posts...</div>
