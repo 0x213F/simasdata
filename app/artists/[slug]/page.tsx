@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import ScrollHeader from '@/components/ScrollHeader';
 import Footer from '@/components/Footer';
-import { ArtSummary } from '@/lib/supabase';
+import { ArtSummaryWithDetails } from '@/lib/supabase';
 import ArtistDetail from '@/components/views/ArtistsView/ArtistDetail';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useBlogPostStore } from '@/lib/stores/blog-post-store';
@@ -14,13 +14,13 @@ export default function ArtistDetailPage() {
   const params = useParams();
   const router = useRouter();
   const slug = params.slug as string;
-  const [artist, setArtist] = useState<ArtSummary | null>(null);
+  const [artist, setArtist] = useState<ArtSummaryWithDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const checkAuth = useAuthStore(state => state.checkAuth);
   const fetchRecentPosts = useBlogPostStore(state => state.fetchRecentPosts);
-  const fetchArtSummaryBySlug = useArtSummaryStore(state => state.fetchArtSummaryBySlug);
+  const fetchArtSummaryWithDetailsBySlug = useArtSummaryStore(state => state.fetchArtSummaryWithDetailsBySlug);
 
   const handleNavigate = (route: string) => {
     if (route === 'home') {
@@ -47,7 +47,7 @@ export default function ArtistDetailPage() {
       setError(null);
 
       try {
-        const data = await fetchArtSummaryBySlug(slug, 'artist');
+        const data = await fetchArtSummaryWithDetailsBySlug(slug, 'artist');
 
         if (!data) {
           setError('Artist not found');
@@ -64,7 +64,7 @@ export default function ArtistDetailPage() {
     };
 
     fetchArtist();
-  }, [slug, fetchArtSummaryBySlug]);
+  }, [slug, fetchArtSummaryWithDetailsBySlug]);
 
   if (loading) {
     return (

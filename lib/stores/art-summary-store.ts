@@ -18,7 +18,7 @@ interface ArtSummaryStore {
   fetchArtSummaryWithDetailsBySlug: (slug: string, type: 'artist' | 'project') => Promise<ArtSummaryWithDetails | null>
   // CRUD operations
   createArtSummary: (name: string, description: string, type: 'artist' | 'project', imageUrl?: string, slug?: string) => Promise<boolean>
-  updateArtSummary: (uuid: string, name: string, description: string, type: 'artist' | 'project', imageUrl?: string, slug?: string) => Promise<boolean>
+  updateArtSummary: (uuid: string, name: string, description: string, type: 'artist' | 'project', imageUrl?: string | null, slug?: string | null) => Promise<boolean>
   deleteArtSummary: (uuid: string) => Promise<boolean>
 }
 
@@ -190,7 +190,7 @@ export const useArtSummaryStore = create<ArtSummaryStore>()(
         }
       },
 
-      updateArtSummary: async (uuid: string, name: string, description: string, type: 'artist' | 'project', imageUrl?: string, slug?: string) => {
+      updateArtSummary: async (uuid: string, name: string, description: string, type: 'artist' | 'project', imageUrl?: string | null, slug?: string | null) => {
         const state = get()
         if (state.loading) {
           return false
@@ -217,8 +217,8 @@ export const useArtSummaryStore = create<ArtSummaryStore>()(
                   text_1: name.trim(),
                   text_2: description.trim(),
                   type,
-                  slug: slug || item.slug || generateSlug(name),
-                  img_url_1: imageUrl || item.img_url_1,
+                  slug: slug !== undefined && slug !== null ? slug : (item.slug || generateSlug(name)),
+                  img_url_1: imageUrl !== undefined ? (imageUrl || undefined) : item.img_url_1,
                   updated_at: new Date().toISOString()
                 }
               : item

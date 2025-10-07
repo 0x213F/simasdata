@@ -89,7 +89,7 @@ export interface ArtSummary {
   is_active: boolean
   type: 'artist' | 'project'
   created_at: string
-  updated_at: string
+  updated_at?: string
 }
 
 // Type definitions for our ArtDetail table
@@ -192,8 +192,7 @@ export const updateProject = async (
   try {
     const updateData: any = {
       name: name.trim(),
-      description: description.trim(),
-      updated_at: new Date().toISOString()
+      description: description.trim()
     }
 
     // Only include imgurl if provided
@@ -245,8 +244,7 @@ export const updateArtist = async (
   try {
     const updateData: any = {
       name: name.trim(),
-      description: description.trim(),
-      updated_at: new Date().toISOString()
+      description: description.trim()
     }
 
     // Only include imgurl if provided
@@ -302,8 +300,7 @@ export const updateArtSummary = async (
     const updateData: any = {
       text_1: name.trim(),
       text_2: description.trim(),
-      type,
-      updated_at: new Date().toISOString()
+      type
     }
 
     // Only include img_url_1 if provided
@@ -378,9 +375,9 @@ export const createArtDetail = async (
   type: 'hero-welcome' | 'hero-goodbye' | 'taster-img-left' | 'taster-img-right' | 'img-highlight',
   text1: string,
   text2: string,
-  text3?: string,
-  imgUrl1?: string,
-  imgUrl2?: string,
+  text3?: string | null,
+  imgUrl1?: string | null,
+  imgUrl2?: string | null,
   index?: number
 ): Promise<boolean> => {
   try {
@@ -402,12 +399,11 @@ export const createArtDetail = async (
       type,
       text_1: text1.trim(),
       text_2: text2.trim(),
+      text_3: (text3 && text3.trim()) ? text3.trim() : null,
+      img_url_1: imgUrl1 || null,
+      img_url_2: imgUrl2 || null,
       index: finalIndex
     }
-
-    if (text3) insertData.text_3 = text3.trim()
-    if (imgUrl1) insertData.img_url_1 = imgUrl1
-    if (imgUrl2) insertData.img_url_2 = imgUrl2
 
     const { error } = await supabase
       .from('ArtDetail')
@@ -430,9 +426,9 @@ export const updateArtDetail = async (
   type: 'hero-welcome' | 'hero-goodbye' | 'taster-img-left' | 'taster-img-right' | 'img-highlight',
   text1: string,
   text2: string,
-  text3?: string,
-  imgUrl1?: string,
-  imgUrl2?: string
+  text3?: string | null,
+  imgUrl1?: string | null,
+  imgUrl2?: string | null
 ): Promise<boolean> => {
   try {
     const updateData: any = {
@@ -441,8 +437,8 @@ export const updateArtDetail = async (
       text_2: text2.trim()
     }
 
-    // Handle optional fields
-    if (text3 !== undefined) updateData.text_3 = text3?.trim() || null
+    // Handle optional fields - explicitly check for undefined vs null
+    if (text3 !== undefined) updateData.text_3 = (typeof text3 === 'string' && text3.trim()) ? text3.trim() : null
     if (imgUrl1 !== undefined) updateData.img_url_1 = imgUrl1 || null
     if (imgUrl2 !== undefined) updateData.img_url_2 = imgUrl2 || null
 

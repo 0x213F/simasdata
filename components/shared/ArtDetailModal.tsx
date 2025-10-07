@@ -129,7 +129,7 @@ export default function ArtDetailModal({
           type,
           text1,
           text2,
-          text3 || undefined,
+          text3.trim() || null,
           imageUrl1 || undefined,
           imageUrl2 || undefined
         );
@@ -165,7 +165,7 @@ export default function ArtDetailModal({
           type,
           text1,
           text2,
-          text3 || undefined,
+          text3.trim() || null,
           finalImageUrl1,
           finalImageUrl2
         );

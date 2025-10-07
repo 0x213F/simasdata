@@ -101,14 +101,14 @@ export default function ArtSummaryModal({ isOpen, onClose, mode, type, item }: A
         // For edit mode:
         // - If new image uploaded, use the new imageUrl
         // - If no new image and existing preview matches item image, pass undefined to keep existing
-        // - If preview is different (cleared), pass the preview value (could be null to clear)
-        let finalImageUrl: string | undefined = undefined;
+        // - If preview was cleared (is null), pass null to clear in DB
+        let finalImageUrl: string | null | undefined = undefined;
         if (image && imageUrl) {
           // New image uploaded
           finalImageUrl = imageUrl;
         } else if (!image && imagePreview !== getArtSummaryImageUrl(item)) {
-          // Image was cleared or changed without file upload
-          finalImageUrl = imagePreview || undefined;
+          // Image was cleared (null) or changed without file upload
+          finalImageUrl = imagePreview;
         }
         // If image unchanged, finalImageUrl stays undefined to preserve existing image
 
