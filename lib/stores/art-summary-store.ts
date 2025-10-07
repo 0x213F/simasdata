@@ -113,10 +113,8 @@ export const useArtSummaryStore = create<ArtSummaryStore>()(
           }
 
           if (!data) {
-            console.log(`No ${type} found with slug: ${slug}`)
             return null
           }
-
 
           // Transform the data to match our expected structure
           const artDetails = data.ArtDetail || []

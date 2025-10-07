@@ -7,12 +7,13 @@ import Footer from '@/components/Footer';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useBlogPostStore } from '@/lib/stores/blog-post-store';
 import { useArtSummaryStore } from '@/lib/stores/art-summary-store';
-import { useLoading } from '@/lib/LoadingContext';
+import { useNavigationType } from '@/lib/navigation-provider';
 
-// Splash overlay component
-function SplashOverlay() {
+// Splash overlay component - renders instantly on hard navigation
+function SplashOverlay({ shouldShow }: { shouldShow: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isFading, setIsFading] = useState(false);
+  const [shouldRender, setShouldRender] = useState(shouldShow);
 
   // Timing constants
   const PAUSE_DURATION = 750; // milliseconds to stay paused
@@ -20,6 +21,12 @@ function SplashOverlay() {
   const FADE_DURATION = 2000; // milliseconds for fade transition
 
   useEffect(() => {
+    // Only start the sequence if we should show the splash
+    if (!shouldShow) {
+      setShouldRender(false);
+      return;
+    }
+
     // Step 1: Start playing video after pause duration
     const playTimer = setTimeout(() => {
       if (videoRef.current) {
@@ -32,11 +39,22 @@ function SplashOverlay() {
       setIsFading(true);
     }, PAUSE_DURATION + PLAY_BEFORE_FADE);
 
+    // Step 3: Remove from DOM after fade completes
+    const removeTimer = setTimeout(() => {
+      setShouldRender(false);
+    }, PAUSE_DURATION + PLAY_BEFORE_FADE + FADE_DURATION);
+
     return () => {
       clearTimeout(playTimer);
       clearTimeout(fadeTimer);
+      clearTimeout(removeTimer);
     };
-  }, []);
+  }, [shouldShow]);
+
+  // Don't render at all if not needed
+  if (!shouldRender) {
+    return null;
+  }
 
   return (
     <div
@@ -81,10 +99,16 @@ function SplashOverlay() {
 export default function Home() {
   const [currentRoute, setCurrentRoute] = useState('home');
   const [isMobileLandscape, setIsMobileLandscape] = useState(false);
-  const { isInitialLoad } = useLoading();
+  const { isHardNavigation } = useNavigationType();
+  const [shouldShowSplash, setShouldShowSplash] = useState(isHardNavigation);
   const checkAuth = useAuthStore(state => state.checkAuth);
   const fetchRecentPosts = useBlogPostStore(state => state.fetchRecentPosts);
   const fetchArtSummaries = useArtSummaryStore(state => state.fetchArtSummaries);
+
+  // Update splash state if navigation type changes (shouldn't happen but for safety)
+  useEffect(() => {
+    setShouldShowSplash(isHardNavigation);
+  }, [isHardNavigation]);
 
   // Check if device is mobile in landscape mode
   useEffect(() => {
@@ -141,8 +165,8 @@ export default function Home() {
         />
       </div>
 
-      {/* Splash overlay - only shows on initial load */}
-      {isInitialLoad && <SplashOverlay />}
+      {/* Splash overlay - only shows on hard navigation to this specific page */}
+      <SplashOverlay shouldShow={shouldShowSplash} />
     </>
   );
 }

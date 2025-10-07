@@ -7,7 +7,7 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { getArtSummaryName } from '@/lib/supabase';
 import ArtSummaryModal from '../../shared/ArtSummaryModal';
 import FloatingActionButtons from '@/components/shared/FloatingActionButtons';
-import ArtistCard from './ArtistCard';
+import { getGalleryComponent } from '../gallery-themes';
 
 export default function ArtistsView() {
   const router = useRouter()
@@ -46,38 +46,21 @@ export default function ArtistsView() {
     }
   }
 
+  // Get the configured gallery component (theme is set in gallery-themes/theme-config.ts)
+  const GalleryComponent = getGalleryComponent();
+
   return (
     <>
       <div className="min-h-screen">
-
-        {/* Artists Grid */}
-        <div className="px-8 pb-20">
-          <div className="max-w-7xl mx-auto">
-            {loading ? (
-              <div className="flex justify-center items-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-              </div>
-            ) : !hasHydrated && artists.length === 0 ? (
-              // Only show empty state during hydration if we have no data
-              <div></div>
-            ) : artists.length === 0 ? (
-              // Show nothing when there are no artists - completely empty
-              <div></div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-                {artists.map((artist, index) => (
-                  <ArtistCard
-                    key={`artist-${artist.uuid}-${index}`}
-                    artist={artist}
-                    index={index}
-                    onClick={handleArtistClick}
-                    isSelected={selectedArtistId === artist.uuid}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+        {/* Gallery (theme controlled by gallery-themes/theme-config.ts) */}
+        <GalleryComponent
+          items={artists}
+          type="artist"
+          onItemClick={handleArtistClick}
+          selectedItemId={selectedArtistId}
+          loading={loading}
+          hasHydrated={hasHydrated}
+        />
       </div>
 
       {/* Floating Action Buttons */}

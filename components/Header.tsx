@@ -1,7 +1,7 @@
 'use client'
 
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { TrackedLink } from '@/lib/navigation-provider';
 import ThemeToggle from './ThemeToggle';
 import { THEME_CONFIG } from '@/lib/theme-config';
 
@@ -87,7 +87,7 @@ export default function Header({ currentRoute, onNavigate }: HeaderProps) {
         >
           {navigation.map((item) => (
             <li key={item.id} style={{ margin: 0 }}>
-              <Link
+              <TrackedLink
                 href={item.href}
                 className={`underline-right-to-left ${activeRoute === item.id ? 'active' : ''} text-text-primary dark:text-text-primary hover:text-text-primary/70 dark:hover:text-text-primary/70 transition-theme`}
                 style={{
@@ -104,7 +104,7 @@ export default function Header({ currentRoute, onNavigate }: HeaderProps) {
                 <span className={`nav-text ${item.id === 'home' ? 'lift-right' : 'lift-left'}`}>
                   {item.label}
                 </span>
-              </Link>
+              </TrackedLink>
             </li>
           ))}
         </ul>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+import { TrackedLink } from '@/lib/navigation-provider';
 
 interface ScrollHeaderProps {
   backText: string;
@@ -66,13 +66,13 @@ export default function ScrollHeader({ backText, backHref, onBack }: ScrollHeade
                 <span className="text-sm uppercase tracking-[0.2em] font-light">{backText}</span>
               </button>
             ) : (
-              <Link
+              <TrackedLink
                 href={backHref}
                 className="flex items-center gap-3 text-text-secondary hover:text-text-primary transition-colors group"
               >
                 <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                 <span className="text-sm uppercase tracking-[0.2em] font-light">{backText}</span>
-              </Link>
+              </TrackedLink>
             )}
           </div>
         </div>

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { TrackedLink } from '@/lib/navigation-provider';
 import { getGradientColors } from './utils';
 import { ArtSummary, getArtSummaryName, getArtSummaryDescription, getArtSummaryImageUrl } from '@/lib/supabase';
 
@@ -39,10 +39,10 @@ export default function ProjectCard({ project, index, onClick, isSelected = fals
     return content;
   }
 
-  // Otherwise, wrap in Link for navigation
+  // Otherwise, wrap in TrackedLink for navigation
   return (
-    <Link href={`/projects/${project.slug}`} className="block">
+    <TrackedLink href={`/projects/${project.slug}`} className="block">
       {content}
-    </Link>
+    </TrackedLink>
   );
 }

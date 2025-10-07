@@ -435,9 +435,9 @@ export default function ArtSummaryDetail({ artSummary, type, onClose }: ArtSumma
   const pluralType = `${type}s`;
 
   return (
-    <div className="fixed inset-0 bg-slate-900 z-50 overflow-y-auto">
+    <div className="fixed inset-0 bg-gradient-to-br from-slate-50 to-slate-100 z-50 overflow-y-auto">
       {/* Fixed Header */}
-      <div className={`fixed top-0 left-0 w-full z-[60] bg-slate-900/95 backdrop-blur-md border-b border-slate-700/20 transition-transform duration-300 ease-in-out ${
+      <div className={`fixed top-0 left-0 w-full z-[60] bg-white/95 backdrop-blur-md border-b border-slate-200 transition-transform duration-300 ease-in-out ${
         isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
       }`}>
         <div className="max-w-6xl mx-auto px-8 py-6">
@@ -445,7 +445,7 @@ export default function ArtSummaryDetail({ artSummary, type, onClose }: ArtSumma
             {onClose ? (
               <button
                 onClick={onClose}
-                className="flex items-center gap-3 text-slate-400 hover:text-white transition-colors group"
+                className="flex items-center gap-3 text-slate-600 hover:text-slate-900 transition-colors group"
               >
                 <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                 <span className="text-sm uppercase tracking-[0.2em] font-light">Back to {capitalizedType}s</span>
@@ -453,7 +453,7 @@ export default function ArtSummaryDetail({ artSummary, type, onClose }: ArtSumma
             ) : (
               <Link
                 href={`/${pluralType}`}
-                className="flex items-center gap-3 text-slate-400 hover:text-white transition-colors group"
+                className="flex items-center gap-3 text-slate-600 hover:text-slate-900 transition-colors group"
               >
                 <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                 <span className="text-sm uppercase tracking-[0.2em] font-light">Back to {capitalizedType}s</span>
@@ -467,17 +467,17 @@ export default function ArtSummaryDetail({ artSummary, type, onClose }: ArtSumma
 
       {/* Default Hero Section - shown when no art details */}
       {artSummary.artDetails.length === 0 && (
-        <section className="min-h-screen flex items-center justify-center relative bg-gradient-to-br from-slate-900 to-slate-800 pt-20">
+        <section className="min-h-screen flex items-center justify-center relative bg-gradient-to-br from-slate-50 to-slate-100 pt-20">
           <div className="text-center px-8 max-w-4xl mx-auto">
             <div className="mb-6">
-              <div className="text-sm uppercase tracking-[0.3em] text-slate-400 mb-4 font-light">
+              <div className="text-sm uppercase tracking-[0.3em] text-slate-500 mb-4 font-light">
                 {getArtSummaryName(artSummary)}
               </div>
-              <h1 className="text-5xl lg:text-6xl xl:text-7xl font-light text-white mb-8 leading-tight">
+              <h1 className="text-5xl lg:text-6xl xl:text-7xl font-light text-slate-900 mb-8 leading-tight">
                 {getArtSummaryName(artSummary)}
               </h1>
             </div>
-            <p className="text-xl md:text-2xl text-slate-300 leading-relaxed mb-12 font-light tracking-wide max-w-3xl mx-auto">
+            <p className="text-xl md:text-2xl text-slate-700 leading-relaxed mb-12 font-light tracking-wide max-w-3xl mx-auto">
               {getArtSummaryDescription(artSummary) || `A thoughtfully curated ${type} exploring the intersection of tradition and innovation`}
             </p>
           </div>

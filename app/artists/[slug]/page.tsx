@@ -68,15 +68,7 @@ export default function ArtistDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 transition-all duration-300">
-        <ScrollHeader backText="Back to Artists" backHref="/artists" />
-        <main className="min-h-screen overflow-auto">
-          <div className="flex items-center justify-center h-full">
-            <div className="text-text-secondary text-lg">Loading artist...</div>
-          </div>
-        </main>
-        <Footer />
-      </div>
+      <div className="min-h-screen bg-slate-900"></div>
     );
   }
 
@@ -94,15 +86,5 @@ export default function ArtistDetailPage() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 transition-all duration-300">
-      <ScrollHeader backText="Back to Artists" backHref="/artists" />
-      <main className="min-h-screen overflow-auto">
-        <div className="transition-opacity duration-300">
-          <ArtistDetail artist={artist} />
-        </div>
-      </main>
-      <Footer />
-    </div>
-  );
+  return <ArtistDetail artist={artist} />;
 }

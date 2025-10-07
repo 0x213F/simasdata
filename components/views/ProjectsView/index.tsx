@@ -7,7 +7,7 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { getArtSummaryName } from '@/lib/supabase';
 import ArtSummaryModal from '../../shared/ArtSummaryModal';
 import FloatingActionButtons from '@/components/shared/FloatingActionButtons';
-import ProjectCard from './ProjectCard';
+import { getGalleryComponent } from '../gallery-themes';
 
 export default function ProjectsView() {
   const router = useRouter()
@@ -25,12 +25,6 @@ export default function ProjectsView() {
   useEffect(() => {
     fetchArtSummaries()
   }, [fetchArtSummaries])
-
-  // Debug: Log the data we're getting
-  useEffect(() => {
-    console.log('ProjectsView - All artSummaries:', useArtSummaryStore.getState().artSummaries)
-    console.log('ProjectsView - Filtered projects:', projects)
-  }, [projects])
 
   const handleProjectClick = (projectId: string) => {
     const project = projects.find(p => p.uuid === projectId)
@@ -52,38 +46,21 @@ export default function ProjectsView() {
     }
   }
 
+  // Get the configured gallery component (theme is set in gallery-themes/theme-config.ts)
+  const GalleryComponent = getGalleryComponent();
+
   return (
     <>
       <div className="min-h-screen bg-surface transition-theme">
-
-        {/* Projects Grid */}
-        <div className="px-8 pb-20">
-          <div className="max-w-7xl mx-auto">
-            {loading ? (
-              <div className="flex justify-center items-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-              </div>
-            ) : !hasHydrated && projects.length === 0 ? (
-              // Only show empty state during hydration if we have no data
-              <div></div>
-            ) : projects.length === 0 ? (
-              // Show nothing when there are no projects - completely empty
-              <div></div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-                {projects.map((project, index) => (
-                  <ProjectCard
-                    key={`project-${project.uuid}-${index}`}
-                    project={project}
-                    index={index}
-                    onClick={handleProjectClick}
-                    isSelected={selectedProjectId === project.uuid}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+        {/* Gallery (theme controlled by gallery-themes/theme-config.ts) */}
+        <GalleryComponent
+          items={projects}
+          type="project"
+          onItemClick={handleProjectClick}
+          selectedItemId={selectedProjectId}
+          loading={loading}
+          hasHydrated={hasHydrated}
+        />
       </div>
 
       {/* Floating Action Buttons */}

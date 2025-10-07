@@ -89,7 +89,6 @@ export interface ArtSummary {
   is_active: boolean
   type: 'artist' | 'project'
   created_at: string
-  updated_at: string
 }
 
 // Type definitions for our ArtDetail table
@@ -302,8 +301,7 @@ export const updateArtSummary = async (
     const updateData: any = {
       text_1: name.trim(),
       text_2: description.trim(),
-      type,
-      updated_at: new Date().toISOString()
+      type
     }
 
     // Only include img_url_1 if provided

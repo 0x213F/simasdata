@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/lib/theme-context";
-import { LoadingProvider } from "@/lib/LoadingContext";
+import { NavigationProvider } from "@/lib/navigation-provider";
+import { NavigationEvents } from "@/components/NavigationEvents";
 
 export const metadata: Metadata = {
   title: "SIMASDATA",
@@ -72,9 +73,10 @@ export default function RootLayout({
       </head>
       <body className="antialiased bg-surface text-text-primary transition-theme">
         <ThemeProvider>
-          <LoadingProvider>
+          <NavigationProvider>
+            <NavigationEvents />
             {children}
-          </LoadingProvider>
+          </NavigationProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -134,10 +134,6 @@ export default function ArtDetailModal({
           imageUrl2 || undefined
         );
       } else if (mode === 'edit' && artDetail) {
-        // Debug logging
-        console.log('Edit mode - artDetail:', artDetail);
-        console.log('Edit mode - artDetail.uuid:', artDetail.uuid);
-
         if (!artDetail.uuid) {
           setError('Art detail UUID is missing. Please try again.');
           setIsSubmitting(false);
