@@ -1,14 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useBlogPostStore } from '@/lib/store';
+import { useBlogPostStore } from '@/lib/stores/blog-post-store';
 import BookPages from './BookPages';
 import PostModal from './PostModal';
-import FloatingActionButtons from './FloatingActionButtons';
+import FloatingActionButtons from '@/components/shared/FloatingActionButtons';
 import NavigationButtons from './NavigationButtons';
 
 export default function HomeView({ isMobileLandscape }: { isMobileLandscape?: boolean }) {
-  const { selectedPost, loading, error, navigateToNewerPost, navigateToOlderPost, deleteBlogPost } = useBlogPostStore();
+  const { selectedPost, loading, error, hasHydrated, navigateToNewerPost, navigateToOlderPost, deleteBlogPost } = useBlogPostStore();
   const [cooldownActive, setCooldownActive] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit' | 'copy'>('create');
@@ -23,32 +23,33 @@ export default function HomeView({ isMobileLandscape }: { isMobileLandscape?: bo
   };
 
 
-  if (loading && !selectedPost) {
+  // Show loading state while hydrating or fetching
+  if (!hasHydrated || (loading && !selectedPost)) {
     return (
-      <div className="w-full h-full flex items-center justify-center ">
-        <div className="text-slate-600 text-lg">Loading recent posts...</div>
+      <div className="w-full h-full flex items-center justify-center bg-surface transition-theme">
+        <div className="text-text-secondary dark:text-text-secondary text-lg">Loading recent posts...</div>
       </div>
     );
   }
 
   if (error && !selectedPost) {
     return (
-      <div className="w-full h-full flex items-center justify-center ">
-        <div className="text-red-600 text-lg">Error loading posts: {error}</div>
+      <div className="w-full h-full flex items-center justify-center bg-surface transition-theme">
+        <div className="text-red-600 dark:text-red-400 text-lg">Error loading posts: {error}</div>
       </div>
     );
   }
 
   if (!selectedPost) {
     return (
-      <div className="w-full h-full flex items-center justify-center ">
-        <div className="text-slate-600 text-lg">No posts available</div>
+      <div className="w-full h-full flex items-center justify-center bg-surface transition-theme">
+        <div className="text-text-secondary dark:text-text-secondary text-lg">No posts available</div>
       </div>
     );
   }
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full bg-surface transition-theme">
       <div className="w-full h-full flex items-center justify-center p-8">
         {/* Book Pages Layout */}
         <div className="max-w-4xl w-full">

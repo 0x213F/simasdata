@@ -26,14 +26,14 @@ export default function MainWebsite({ currentRoute, onNavigate, isMobileLandscap
   };
 
   return (
-    <main 
+    <main
       className={
-        isMobileLandscape 
-          ? "fixed inset-0 overflow-auto" 
-          : "fixed top-20 bottom-20 left-0 right-0 overflow-auto"
+        isMobileLandscape
+          ? "min-h-screen overflow-auto"
+          : "min-h-screen overflow-auto pt-20 pb-20"
       }
     >
-      <div className="transition-opacity duration-300 h-full">
+      <div className="transition-opacity duration-300">
         {renderCurrentView()}
       </div>
     </main>

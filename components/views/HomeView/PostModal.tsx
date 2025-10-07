@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, ArrowLeftRight } from 'lucide-react';
-import { useBlogPostStore } from '@/lib/store';
+import { useBlogPostStore } from '@/lib/stores/blog-post-store';
 import { uploadBlogImage, BlogPost } from '@/lib/supabase';
 
 interface PostModalProps {

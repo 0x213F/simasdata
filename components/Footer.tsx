@@ -1,7 +1,8 @@
 'use client'
 
-import { useAuthStore } from '@/lib/store'
+import { useAuthStore } from '@/lib/stores/auth-store'
 import { useState, useRef } from 'react'
+import ContactDrawer from './ContactDrawer'
 
 export default function Footer() {
   const user = useAuthStore(state => state.user)
@@ -28,7 +29,7 @@ export default function Footer() {
 
   return (
     <footer
-      className="fixed bottom-0 left-0 w-full bg-white z-30"
+      className="fixed bottom-0 left-0 w-full bg-white z-40"
       style={{
         height: '80px',
         display: 'grid',
@@ -49,10 +50,8 @@ export default function Footer() {
         `
       }} />
       {/* Left: Gallery Name */}
-      <div 
-        className={`text-xs tracking-[0.2em] font-light uppercase transition-colors ${
-          isAuthenticated ? 'text-green-600' : 'text-black'
-        }`}
+      <div
+        className="text-xs tracking-[0.2em] font-light uppercase transition-colors text-gray-500"
         onMouseDown={handlePressStart}
         onMouseUp={handlePressEnd}
         onMouseLeave={handlePressEnd}
@@ -64,23 +63,24 @@ export default function Footer() {
       </div>
 
       {/* Center: Location */}
-      <div className="hidden md:block text-xs tracking-[0.15em] text-gray-500 font-light text-center">
+      <div className="hidden md:block text-xs tracking-[0.15em] text-gray-500 font-light text-center transition-colors">
         San Francisco
       </div>
 
       {/* Right: Links */}
       <div className="flex items-center space-x-6 md:space-x-8 justify-end">
-        <a
-          href="mailto:hello@gallery.com"
-          className="text-xs tracking-[0.1em] text-gray-500 hover:text-black transition-colors font-light"
-        >
-          Contact
-        </a>
+        <ContactDrawer>
+          <button
+            className="text-xs tracking-[0.1em] text-gray-500 hover:text-gray-700 transition-colors font-light cursor-pointer"
+          >
+            Contact
+          </button>
+        </ContactDrawer>
         <a
           href="https://www.instagram.com/simasdata/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs tracking-[0.1em] text-gray-500 hover:text-black transition-colors font-light"
+          className="text-xs tracking-[0.1em] text-gray-500 hover:text-gray-700 transition-colors font-light"
         >
           Instagram
         </a>
